@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import LastMatchResult from '@/components/LastMatchResult.vue'
 import LeagueTable from '@/components/LeagueTable.vue'
+import NewsPreview from '@/components/NewsPreview.vue'
 
 // Дата матча: ближайшая суббота в 18:00
 function getNextMatchDate(): Date {
@@ -178,6 +179,7 @@ function pad(num: number): string {
     <!--Блок мини турнирной таблицы-->
     <LeagueTable />
     
+    <NewsPreview />
 
   </div>
 </template>
