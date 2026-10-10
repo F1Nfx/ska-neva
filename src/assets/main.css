@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  /* Фирменные цвета ПФК «СКА-Нева» */
+  --color-ska-navy: #0A1A2F;      /* Балтийская ночь */
+  --color-ska-red: #C8102E;       /* Адмиралтейский алый */
+  --color-ska-blue: #1B3A6B;      /* Морская волна */
+  --color-ska-silver: #C9CED6;    /* Сталь и якорь */
+  --color-ska-white: #F4F6F8;     /* Пена Невы */
+}
