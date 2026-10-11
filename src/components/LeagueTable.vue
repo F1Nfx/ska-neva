@@ -81,11 +81,11 @@ const teams: Team[] = [
             Турнирная таблица
           </h2>
           <p class="text-ska-silver/60 text-sm mt-1">
-            ФНЛ-3 · Сезон 2025/26 · После 11 туров
+            ФНЛ-3 · Сезон 2025/26
           </p>
         </div>
         <RouterLink
-          to="/matches"
+          :to="{ path: '/matches', query: { tab: 'table' } }"
           class="hidden sm:inline-flex items-center gap-2
                  text-ska-red hover:text-ska-white text-sm font-semibold
                  uppercase tracking-wider transition-colors"
