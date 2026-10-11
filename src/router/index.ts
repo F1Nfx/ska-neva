@@ -11,6 +11,7 @@ const router = createRouter({
     { path: '/news', name: 'news', component: () => import('../views/NewsView.vue') },
     { path: '/news/:id', name: 'news-detail', component: () => import('../views/NewsDetailView.vue') },
     { path: '/club', name: 'club', component: () => import('../views/ClubView.vue') },
+    { path: '/tickets', name: 'tickets', component: () => import('../views/TicketsView.vue') },  // ← ДОБАВЬ ЭТУ СТРОКУ
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
   ],
   scrollBehavior(to, from, savedPosition) {
