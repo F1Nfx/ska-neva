@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { getMatchById, matchEvents, matchStats, ourTeam } from '@/data/matches'
 
@@ -29,6 +29,13 @@ const result = computed(() => {
   if (us < them) return { type: 'loss', text: 'Поражение', cls: 'text-ska-red' }
   return { type: 'draw', text: 'Ничья', cls: 'text-ska-silver' }
 })
+
+watch(match, (newMatch) => {
+  if (newMatch) {
+    const opponentName = newMatch.opponent.name
+    document.title = `СКА-Нева — ${opponentName} · Матч · ПФК «СКА-Нева»`
+  }
+}, { immediate: true })
 
 function eventIcon(type: string): string {
   if (type === 'goal') return '⚽'

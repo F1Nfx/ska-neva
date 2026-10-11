@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { getNewsById, news, tagColors } from '@/data/news'
 
@@ -15,7 +15,13 @@ const related = computed(() => {
   if (!item.value) return []
   return news.filter((n) => n.id !== item.value!.id).slice(0, 3)
 })
+watch(item, (newItem) => {
+  if (newItem) {
+    document.title = `${newItem.title} · ПФК «СКА-Нева»`
+  }
+}, { immediate: true })
 </script>
+
 
 <template>
   <div class="bg-ska-navy min-h-screen">

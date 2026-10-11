@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { getPlayerById } from '@/data/players'
 
@@ -21,6 +21,12 @@ const stats = computed(() => {
     { label: 'Красные', value: s.redCards },
   ]
 })
+
+watch(player, (newPlayer) => {
+  if (newPlayer) {
+    document.title = `${newPlayer.name} · ПФК «СКА-Нева»`
+  }
+}, { immediate: true })
 </script>
 
 <template>

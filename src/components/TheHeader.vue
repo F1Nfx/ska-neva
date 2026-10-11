@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const navItems = [
   { name: 'Главная', path: '/' },
@@ -8,12 +11,24 @@ const navItems = [
   { name: 'Новости', path: '/news' },
   { name: 'Клуб', path: '/club' },
 ]
+
+const isMenuOpen = ref(false)
+
+function toggleMenu() {
+  isMenuOpen.value = !isMenuOpen.value
+}
+
+// Закрываем меню при смене маршрута
+watch(() => route.path, () => {
+  isMenuOpen.value = false
+})
 </script>
 
 <template>
   <header class="bg-ska-navy border-b border-ska-blue/40 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
+      <!-- Логотип -->
       <RouterLink to="/" class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-full bg-gradient-to-br from-ska-red to-ska-blue
                     flex items-center justify-center border-2 border-ska-silver">
@@ -25,6 +40,7 @@ const navItems = [
         </div>
       </RouterLink>
 
+      <!-- Навигация (десктоп) -->
       <nav class="hidden lg:flex items-center gap-1">
         <RouterLink
           v-for="item in navItems"
@@ -38,6 +54,7 @@ const navItems = [
         </RouterLink>
       </nav>
 
+      <!-- CTA (десктоп) -->
       <RouterLink
         to="/tickets"
         class="hidden md:inline-flex items-center gap-2 px-5 py-2.5
@@ -47,6 +64,66 @@ const navItems = [
         Купить билет
       </RouterLink>
 
+      <!-- Бургер (мобильный) -->
+      <button
+        @click="toggleMenu"
+        class="lg:hidden flex flex-col items-center justify-center gap-1.5
+               w-11 h-11 rounded-md hover:bg-ska-blue/30 transition-colors"
+        aria-label="Меню"
+      >
+        <span
+          class="w-6 h-0.5 bg-ska-white transition-all duration-300"
+          :class="isMenuOpen && 'rotate-45 translate-y-2'"
+        ></span>
+        <span
+          class="w-6 h-0.5 bg-ska-white transition-all duration-300"
+          :class="isMenuOpen && 'opacity-0'"
+        ></span>
+        <span
+          class="w-6 h-0.5 bg-ska-white transition-all duration-300"
+          :class="isMenuOpen && '-rotate-45 -translate-y-2'"
+        ></span>
+      </button>
+
     </div>
+
+    <!-- Мобильное меню -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 -translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-4"
+    >
+      <div
+        v-if="isMenuOpen"
+        class="lg:hidden border-t border-ska-blue/40 bg-ska-navy/95 backdrop-blur-md"
+      >
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1">
+          <RouterLink
+            v-for="item in navItems"
+            :key="item.path"
+            :to="item.path"
+            class="px-4 py-3 text-sm font-semibold text-ska-silver
+                   hover:text-ska-white hover:bg-ska-blue/30
+                   rounded-md transition-colors uppercase tracking-wider"
+            active-class="!text-ska-white bg-ska-blue/40"
+          >
+            {{ item.name }}
+          </RouterLink>
+
+          <RouterLink
+            to="/tickets"
+            class="mt-2 px-4 py-3 bg-ska-red hover:bg-red-700
+                   text-ska-white text-sm font-bold uppercase tracking-wider
+                   rounded-md transition-colors text-center"
+          >
+            Купить билет
+          </RouterLink>
+        </nav>
+      </div>
+    </Transition>
+
   </header>
 </template>
