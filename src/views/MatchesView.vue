@@ -2,42 +2,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import FullLeagueTable from '@/components/FullLeagueTable.vue'
-
-type MatchStatus = 'finished' | 'upcoming'
-type Team = { name: string; city: string; short: string; color: string }
-type Match = {
-  id: number; tour: number; tournament: string; date: string; time: string;
-  stadium: string; isHome: boolean; opponent: Team; status: MatchStatus;
-  scoreUs?: number; scoreThem?: number
-}
-
-const ourTeam: Team = {
-  name: 'СКА-Нева', city: 'Санкт-Петербург', short: 'СКА',
-  color: 'from-ska-red to-ska-blue',
-}
-
-const finishedMatches: Match[] = [
-  { id: 10, tour: 10, tournament: 'ФНЛ-3', date: '11 октября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Волга-Тверь', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700' }, status: 'finished', scoreUs: 2, scoreThem: 1 },
-  { id: 9, tour: 9, tournament: 'ФНЛ-3', date: '4 октября 2026', time: '17:00', stadium: 'Стадион «Авангард», Выборг', isHome: false, opponent: { name: 'Динамо-Выборг', city: 'Выборг', short: 'ДВ', color: 'from-indigo-700 to-indigo-900' }, status: 'finished', scoreUs: 0, scoreThem: 2 },
-  { id: 8, tour: 8, tournament: 'ФНЛ-3', date: '27 сентября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Локомотив-2', city: 'Москва', short: 'Л2', color: 'from-red-700 to-red-900' }, status: 'finished', scoreUs: 2, scoreThem: 0 },
-  { id: 7, tour: 7, tournament: 'ФНЛ-3', date: '20 сентября 2026', time: '16:00', stadium: 'Стадион «Торпедо», Владимир', isHome: false, opponent: { name: 'Торпедо', city: 'Владимир', short: 'ТВ', color: 'from-slate-600 to-slate-800' }, status: 'finished', scoreUs: 1, scoreThem: 2 },
-  { id: 6, tour: 6, tournament: 'ФНЛ-3', date: '13 сентября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Зенит-2', city: 'Санкт-Петербург', short: 'З2', color: 'from-sky-500 to-blue-700' }, status: 'finished', scoreUs: 1, scoreThem: 2 },
-  { id: 5, tour: 5, tournament: 'ФНЛ-3', date: '6 сентября 2026', time: '19:00', stadium: 'Стадион «Балтика», Калининград', isHome: false, opponent: { name: 'Балтика-2', city: 'Калининград', short: 'Б2', color: 'from-sky-700 to-blue-900' }, status: 'finished', scoreUs: 2, scoreThem: 2 },
-  { id: 4, tour: 4, tournament: 'ФНЛ-3', date: '30 августа 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Динамо', city: 'Кострома', short: 'ДМ', color: 'from-blue-800 to-blue-950' }, status: 'finished', scoreUs: 2, scoreThem: 0 },
-  { id: 3, tour: 3, tournament: 'ФНЛ-3', date: '23 августа 2026', time: '17:00', stadium: 'Стадион «Волга», Тверь', isHome: false, opponent: { name: 'Волга-Тверь', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700' }, status: 'finished', scoreUs: 2, scoreThem: 1 },
-  { id: 2, tour: 2, tournament: 'ФНЛ-3', date: '16 августа 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Динамо-Выборг', city: 'Выборг', short: 'ДВ', color: 'from-indigo-700 to-indigo-900' }, status: 'finished', scoreUs: 3, scoreThem: 1 },
-  { id: 1, tour: 1, tournament: 'ФНЛ-3', date: '9 августа 2026', time: '17:00', stadium: 'Стадион «Локомотив», Москва', isHome: false, opponent: { name: 'Локомотив-2', city: 'Москва', short: 'Л2', color: 'from-red-700 to-red-900' }, status: 'finished', scoreUs: 1, scoreThem: 1 },
-]
-
-const upcomingMatches: Match[] = [
-  { id: 11, tour: 11, tournament: 'ФНЛ-3', date: '17 октября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Динамо', city: 'Кострома', short: 'ДМ', color: 'from-blue-800 to-blue-950' }, status: 'upcoming' },
-  { id: 12, tour: 12, tournament: 'ФНЛ-3', date: '24 октября 2026', time: '17:00', stadium: 'Стадион «Балтика», Калининград', isHome: false, opponent: { name: 'Балтика-2', city: 'Калининград', short: 'Б2', color: 'from-sky-700 to-blue-900' }, status: 'upcoming' },
-  { id: 13, tour: 13, tournament: 'ФНЛ-3', date: '31 октября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Зенит-2', city: 'Санкт-Петербург', short: 'З2', color: 'from-sky-500 to-blue-700' }, status: 'upcoming' },
-  { id: 14, tour: 14, tournament: 'ФНЛ-3', date: '7 ноября 2026', time: '16:00', stadium: 'Стадион «Торпедо», Владимир', isHome: false, opponent: { name: 'Торпедо', city: 'Владимир', short: 'ТВ', color: 'from-slate-600 to-slate-800' }, status: 'upcoming' },
-  { id: 15, tour: 15, tournament: 'ФНЛ-3', date: '14 ноября 2026', time: '18:00', stadium: '«Нева-Арена», Санкт-Петербург', isHome: true, opponent: { name: 'Локомотив-2', city: 'Москва', short: 'Л2', color: 'from-red-700 to-red-900' }, status: 'upcoming' },
-]
-
-const allMatches: Match[] = [...upcomingMatches, ...finishedMatches]
+import {
+  finishedMatches,
+  upcomingMatches,
+  allMatches,
+  ourTeam,
+  type Match,
+} from '@/data/matches'
 
 const route = useRoute()
 const router = useRouter()
@@ -146,7 +117,7 @@ const resultLabels = {
           <RouterLink
             v-for="match in filteredMatches"
             :key="match.id"
-            to="/matches"
+            :to="`/matches/${match.id}`"
             class="group block bg-gradient-to-br from-[#0A1425] to-[#0F2444] border border-ska-blue/30 hover:border-ska-red/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-ska-red/5"
           >
 
