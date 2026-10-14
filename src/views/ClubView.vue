@@ -50,10 +50,10 @@ const history: Milestone[] = [
 ]
 
 const executives: Executive[] = [
-  { name: 'Сергей Власов', role: 'Президент клуба', initials: 'СВ' },
-  { name: 'Марина Захарова', role: 'Генеральный директор', initials: 'МЗ' },
-  { name: 'Игорь Бельский', role: 'Спортивный директор', initials: 'ИБ' },
-  { name: 'Андрей Крылов', role: 'Старший тренер', initials: 'АК' },
+  { name: 'Матвей Тарковский', role: 'Президент клуба', initials: 'МТ' },
+  { name: 'Данил Кирилин', role: 'Спортивный директор', initials: 'ДК' },
+  { name: 'Диментий Диментьев', role: 'Главный Тренер', initials: 'ДД' },
+  { name: 'Рига Дмитрович', role: 'Старший тренер', initials: 'РД' },
 ]
 </script>
 

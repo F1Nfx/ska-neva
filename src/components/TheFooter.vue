@@ -17,7 +17,7 @@ const fanLinks = [
 
 const socials = [
   { name: 'VK', url: '#' },
-  { name: 'Telegram', url: '#' },
+  { name: 'Telegram', url: 't.me/F1Nfx' },
   { name: 'YouTube', url: '#' },
 ]
 </script>

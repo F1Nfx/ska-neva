@@ -32,7 +32,7 @@ export const players: Player[] = [
     stats: { season: '2025/26', matches: 11, goals: 0, assists: 0, yellowCards: 1, redCards: 0 },
   },
   {
-    id: 2, number: 12, name: 'Никита Крайнов', position: 'Вратарь', age: 22, height: 187, weight: 80,
+    id: 2, number: 27, name: 'Константин Финов', position: 'Вратарь', age: 22, height: 187, weight: 80,
     foot: 'Правый', birthplace: 'Великий Новгород', joinedAt: '2023',
     bio: 'Молодой голкипер, пришедший из академии «Зенита». Считается одним из самых перспективных вратарей дивизиона. Отлично играет на линии и уверенно действует при пенальти.',
     stats: { season: '2025/26', matches: 2, goals: 0, assists: 0, yellowCards: 0, redCards: 0 },

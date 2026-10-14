@@ -18,55 +18,14 @@ type Team = {
 }
 
 const teams: Team[] = [
-  {
-    position: 1, name: 'Волга-Тверь', city: 'Тверь', short: 'ВТ',
-    color: 'from-slate-500 to-slate-700',
-    played: 11, wins: 7, draws: 1, losses: 3,
-    goalsFor: 18, goalsAgainst: 10, points: 22,
-  },
-  {
-    position: 2, name: 'СКА-Нева', city: 'Санкт-Петербург', short: 'СКА',
-    color: 'from-ska-red to-ska-blue',
-    played: 11, wins: 6, draws: 2, losses: 3,
-    goalsFor: 17, goalsAgainst: 11, points: 20,
-    isOurTeam: true,
-  },
-  {
-    position: 3, name: 'Динамо', city: 'Кострома', short: 'ДМ',
-    color: 'from-blue-800 to-blue-950',
-    played: 11, wins: 5, draws: 4, losses: 2,
-    goalsFor: 15, goalsAgainst: 10, points: 19,
-  },
-  {
-    position: 4, name: 'Балтика-2', city: 'Калининград', short: 'Б2',
-    color: 'from-sky-700 to-blue-900',
-    played: 11, wins: 5, draws: 3, losses: 3,
-    goalsFor: 14, goalsAgainst: 12, points: 18,
-  },
-  {
-    position: 5, name: 'Зенит-2', city: 'Санкт-Петербург', short: 'З2',
-    color: 'from-sky-500 to-blue-700',
-    played: 11, wins: 4, draws: 3, losses: 4,
-    goalsFor: 13, goalsAgainst: 13, points: 15,
-  },
-  {
-    position: 6, name: 'Торпедо', city: 'Владимир', short: 'ТВ',
-    color: 'from-slate-600 to-slate-800',
-    played: 11, wins: 3, draws: 3, losses: 5,
-    goalsFor: 11, goalsAgainst: 15, points: 12,
-  },
-  {
-    position: 7, name: 'Локомотив-2', city: 'Москва', short: 'Л2',
-    color: 'from-red-700 to-red-900',
-    played: 11, wins: 2, draws: 4, losses: 5,
-    goalsFor: 10, goalsAgainst: 16, points: 10,
-  },
-  {
-    position: 8, name: 'Динамо-Выборг', city: 'Выборг', short: 'ДВ',
-    color: 'from-indigo-700 to-indigo-900',
-    played: 11, wins: 1, draws: 5, losses: 5,
-    goalsFor: 9, goalsAgainst: 17, points: 8,
-  },
+  { position: 1, name: 'Волга', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700', played: 11, wins: 7, draws: 1, losses: 3, goalsFor: 18, goalsAgainst: 10, points: 22 },
+  { position: 2, name: 'СКА-Нева', city: 'Санкт-Петербург', short: 'СКА', color: 'from-ska-red to-ska-blue', played: 11, wins: 6, draws: 2, losses: 3, goalsFor: 17, goalsAgainst: 11, points: 20, isOurTeam: true },
+  { position: 3, name: 'Волга', city: 'Кострома', short: 'ВК', color: 'from-blue-800 to-blue-950', played: 11, wins: 5, draws: 4, losses: 2, goalsFor: 15, goalsAgainst: 10, points: 19 },
+  { position: 4, name: 'Заря', city: 'Балтийск', short: 'ЗБ', color: 'from-sky-700 to-blue-900', played: 11, wins: 5, draws: 3, losses: 3, goalsFor: 14, goalsAgainst: 12, points: 18 },
+  { position: 5, name: 'Шторм', city: 'Санкт-Петербург', short: 'ШТ', color: 'from-sky-500 to-blue-700', played: 11, wins: 4, draws: 3, losses: 4, goalsFor: 13, goalsAgainst: 13, points: 15 },
+  { position: 6, name: 'Лев', city: 'Владимир', short: 'ЛВ', color: 'from-slate-600 to-slate-800', played: 11, wins: 3, draws: 3, losses: 5, goalsFor: 11, goalsAgainst: 15, points: 12 },
+  { position: 7, name: 'Молот', city: 'Нижний Тагил', short: 'МН', color: 'from-red-700 to-red-900', played: 11, wins: 2, draws: 4, losses: 5, goalsFor: 10, goalsAgainst: 16, points: 10 },
+  { position: 8, name: 'Замок', city: 'Выборг', short: 'ЗВ', color: 'from-indigo-700 to-indigo-900', played: 11, wins: 1, draws: 5, losses: 5, goalsFor: 9, goalsAgainst: 17, points: 8 },
 ]
 </script>
 

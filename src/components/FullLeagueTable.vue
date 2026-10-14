@@ -16,22 +16,22 @@ type Team = {
 }
 
 const teams: Team[] = [
-  { position: 1, name: 'Волга-Тверь', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700', played: 11, wins: 7, draws: 1, losses: 3, goalsFor: 18, goalsAgainst: 10, points: 22 },
+  { position: 1, name: 'Волга', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700', played: 11, wins: 7, draws: 1, losses: 3, goalsFor: 18, goalsAgainst: 10, points: 22 },
   { position: 2, name: 'СКА-Нева', city: 'Санкт-Петербург', short: 'СКА', color: 'from-ska-red to-ska-blue', played: 11, wins: 6, draws: 2, losses: 3, goalsFor: 17, goalsAgainst: 11, points: 20, isOurTeam: true },
-  { position: 3, name: 'Динамо', city: 'Кострома', short: 'ДМ', color: 'from-blue-800 to-blue-950', played: 11, wins: 5, draws: 4, losses: 2, goalsFor: 15, goalsAgainst: 10, points: 19 },
-  { position: 4, name: 'Балтика-2', city: 'Калининград', short: 'Б2', color: 'from-sky-700 to-blue-900', played: 11, wins: 5, draws: 3, losses: 3, goalsFor: 14, goalsAgainst: 12, points: 18 },
-  { position: 5, name: 'Зенит-2', city: 'Санкт-Петербург', short: 'З2', color: 'from-sky-500 to-blue-700', played: 11, wins: 4, draws: 3, losses: 4, goalsFor: 13, goalsAgainst: 13, points: 15 },
-  { position: 6, name: 'Торпедо', city: 'Владимир', short: 'ТВ', color: 'from-slate-600 to-slate-800', played: 11, wins: 3, draws: 3, losses: 5, goalsFor: 11, goalsAgainst: 15, points: 12 },
-  { position: 7, name: 'Локомотив-2', city: 'Москва', short: 'Л2', color: 'from-red-700 to-red-900', played: 11, wins: 2, draws: 4, losses: 5, goalsFor: 10, goalsAgainst: 16, points: 10 },
-  { position: 8, name: 'Динамо-Выборг', city: 'Выборг', short: 'ДВ', color: 'from-indigo-700 to-indigo-900', played: 11, wins: 1, draws: 5, losses: 5, goalsFor: 9, goalsAgainst: 17, points: 8 },
-  { position: 9, name: 'Авангард', city: 'Курск', short: 'АК', color: 'from-blue-600 to-blue-800', played: 11, wins: 2, draws: 2, losses: 7, goalsFor: 10, goalsAgainst: 19, points: 8 },
-  { position: 10, name: 'Уралмаш-2', city: 'Екатеринбург', short: 'У2', color: 'from-orange-600 to-orange-800', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 8, goalsAgainst: 18, points: 7 },
-  { position: 11, name: 'Симбирск', city: 'Ульяновск', short: 'СМ', color: 'from-emerald-700 to-emerald-900', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 7, goalsAgainst: 17, points: 7 },
-  { position: 12, name: 'Алания-Владикавказ', city: 'Владикавказ', short: 'АЛ', color: 'from-yellow-600 to-yellow-800', played: 11, wins: 1, draws: 3, losses: 7, goalsFor: 9, goalsAgainst: 20, points: 6 },
-  { position: 13, name: 'Сибирь-2', city: 'Новосибирск', short: 'С2', color: 'from-cyan-700 to-cyan-900', played: 11, wins: 1, draws: 2, losses: 8, goalsFor: 8, goalsAgainst: 21, points: 5 },
-  { position: 14, name: 'Амур-Комсомольск', city: 'Комсомольск-на-Амуре', short: 'АМ', color: 'from-teal-700 to-teal-900', played: 11, wins: 1, draws: 1, losses: 9, goalsFor: 6, goalsAgainst: 22, points: 4 },
-  { position: 15, name: 'Сахалин-2', city: 'Южно-Сахалинск', short: 'СХ', color: 'from-green-700 to-green-900', played: 11, wins: 0, draws: 3, losses: 8, goalsFor: 5, goalsAgainst: 20, points: 3 },
-  { position: 16, name: 'Торпедо-Волжский', city: 'Волжский', short: 'ТВ', color: 'from-zinc-600 to-zinc-800', played: 11, wins: 0, draws: 2, losses: 9, goalsFor: 4, goalsAgainst: 24, points: 2 },
+  { position: 3, name: 'Волга', city: 'Кострома', short: 'ВК', color: 'from-blue-800 to-blue-950', played: 11, wins: 5, draws: 4, losses: 2, goalsFor: 15, goalsAgainst: 10, points: 19 },
+  { position: 4, name: 'Заря', city: 'Балтийск', short: 'ЗБ', color: 'from-sky-700 to-blue-900', played: 11, wins: 5, draws: 3, losses: 3, goalsFor: 14, goalsAgainst: 12, points: 18 },
+  { position: 5, name: 'Шторм', city: 'Санкт-Петербург', short: 'ШТ', color: 'from-sky-500 to-blue-700', played: 11, wins: 4, draws: 3, losses: 4, goalsFor: 13, goalsAgainst: 13, points: 15 },
+  { position: 6, name: 'Лев', city: 'Владимир', short: 'ЛВ', color: 'from-slate-600 to-slate-800', played: 11, wins: 3, draws: 3, losses: 5, goalsFor: 11, goalsAgainst: 15, points: 12 },
+  { position: 7, name: 'Молот', city: 'Нижний Тагил', short: 'МН', color: 'from-red-700 to-red-900', played: 11, wins: 2, draws: 4, losses: 5, goalsFor: 10, goalsAgainst: 16, points: 10 },
+  { position: 8, name: 'Замок', city: 'Выборг', short: 'ЗВ', color: 'from-indigo-700 to-indigo-900', played: 11, wins: 1, draws: 5, losses: 5, goalsFor: 9, goalsAgainst: 17, points: 8 },
+  { position: 9, name: 'Курск', city: 'Курск', short: 'КР', color: 'from-blue-600 to-blue-800', played: 11, wins: 2, draws: 2, losses: 7, goalsFor: 10, goalsAgainst: 19, points: 8 },
+  { position: 10, name: 'Красноярск', city: 'Красноярск', short: 'КЯ', color: 'from-orange-600 to-orange-800', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 8, goalsAgainst: 18, points: 7 },
+  { position: 11, name: 'Маяк', city: 'Ульяновск', short: 'МУ', color: 'from-emerald-700 to-emerald-900', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 7, goalsAgainst: 17, points: 7 },
+  { position: 12, name: 'Барс', city: 'Владикавказ', short: 'БА', color: 'from-yellow-600 to-yellow-800', played: 11, wins: 1, draws: 3, losses: 7, goalsFor: 9, goalsAgainst: 20, points: 6 },
+  { position: 13, name: 'Луч', city: 'Новосибирск', short: 'ЛН', color: 'from-cyan-700 to-cyan-900', played: 11, wins: 1, draws: 2, losses: 8, goalsFor: 8, goalsAgainst: 21, points: 5 },
+  { position: 14, name: 'Амур', city: 'Комсомольск-на-Амуре', short: 'АМ', color: 'from-teal-700 to-teal-900', played: 11, wins: 1, draws: 1, losses: 9, goalsFor: 6, goalsAgainst: 22, points: 4 },
+  { position: 15, name: 'Сахалин', city: 'Южно-Сахалинск', short: 'СХ', color: 'from-green-700 to-green-900', played: 11, wins: 0, draws: 3, losses: 8, goalsFor: 5, goalsAgainst: 20, points: 3 },
+  { position: 16, name: 'Элиста', city: 'Элиста', short: 'ЭЛ', color: 'from-purple-700 to-purple-950', played: 11, wins: 0, draws: 2, losses: 9, goalsFor: 4, goalsAgainst: 24, points: 2 },
 ]
 </script>
 
