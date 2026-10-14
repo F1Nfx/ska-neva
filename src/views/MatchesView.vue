@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import FullLeagueTable from '@/components/FullLeagueTable.vue'
+import TeamLogo from '@/components/TeamLogo.vue'
 import {
   finishedMatches,
   upcomingMatches,
@@ -28,6 +29,18 @@ function switchTab(tab: Tab) {
 }
 
 const activeFilter = ref<'all' | 'finished' | 'upcoming'>('all')
+
+function getHomeTeam(match: Match) {
+  return match.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : match.opponent
+}
+
+function getAwayTeam(match: Match) {
+  return !match.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : match.opponent
+}
 
 const filteredMatches = computed(() => {
   if (activeFilter.value === 'all') return allMatches
@@ -151,15 +164,14 @@ const resultLabels = {
 
               <!-- Хозяева -->
               <div class="flex items-center gap-3 min-w-0">
-                <div
-                  class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center border-2"
-                  :class="[match.isHome ? 'border-ska-silver' : 'border-ska-silver/30', `bg-gradient-to-br ${ourTeam.color}`]"
-                >
-                  <span class="text-ska-white text-[11px] font-black">{{ ourTeam.short }}</span>
-                </div>
+                <TeamLogo :team="getHomeTeam(match)" size="md" />
                 <div class="min-w-0 hidden sm:block">
-                  <p class="text-ska-white text-sm font-semibold truncate">{{ ourTeam.name }}</p>
-                  <p class="text-ska-silver/50 text-xs truncate">{{ ourTeam.city }}</p>
+                  <p class="text-ska-white text-sm font-semibold truncate">
+                    {{ getHomeTeam(match).name }}
+                  </p>
+                  <p class="text-ska-silver/50 text-xs truncate">
+                    {{ getHomeTeam(match).city }}
+                  </p>
                 </div>
               </div>
 
@@ -182,15 +194,14 @@ const resultLabels = {
               <!-- Гости -->
               <div class="flex items-center justify-end gap-3 min-w-0">
                 <div class="min-w-0 hidden sm:block text-right">
-                  <p class="text-ska-white text-sm font-semibold truncate">{{ match.opponent.name }}</p>
-                  <p class="text-ska-silver/50 text-xs truncate">{{ match.opponent.city }}</p>
+                  <p class="text-ska-white text-sm font-semibold truncate">
+                    {{ getAwayTeam(match).name }}
+                  </p>
+                  <p class="text-ska-silver/50 text-xs truncate">
+                    {{ getAwayTeam(match).city }}
+                  </p>
                 </div>
-                <div
-                  class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center border-2"
-                  :class="[!match.isHome ? 'border-ska-silver' : 'border-ska-silver/30', `bg-gradient-to-br ${match.opponent.color}`]"
-                >
-                  <span class="text-ska-white text-[11px] font-black">{{ match.opponent.short }}</span>
-                </div>
+                <TeamLogo :team="getAwayTeam(match)" size="md" />
               </div>
 
             </div>

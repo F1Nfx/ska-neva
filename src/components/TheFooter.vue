@@ -30,10 +30,11 @@ const socials = [
 
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-ska-red to-ska-blue
-                        flex items-center justify-center border-2 border-ska-silver">
-              <span class="text-ska-white text-sm font-black">СКА</span>
-            </div>
+            <img
+              src="/logo-icon.png"
+              alt="ПФК СКА-Нева"
+              class="w-16 h-16 object-contain"
+            />
             <div class="flex flex-col leading-none">
               <span class="text-ska-white text-base font-bold tracking-wider">СКА-НЕВА</span>
               <span class="text-ska-silver text-[10px] tracking-[0.25em] uppercase">Санкт-Петербург</span>

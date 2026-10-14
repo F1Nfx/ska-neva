@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { finishedMatches, ourTeam } from '@/data/matches'
+import TeamLogo from '@/components/TeamLogo.vue'
 
-// Non-null assertion — мы точно знаем, что массив не пуст
 const lastMatch = finishedMatches[0]!
 
-// Авторы голов (локально — потом добавим в data/matches.ts)
 const homeScorers = [
   { minute: 34, player: 'Иванов' },
   { minute: 78, player: 'Петров' },
@@ -13,6 +13,19 @@ const homeScorers = [
 const awayScorers = [
   { minute: 58, player: 'Кузнецов' },
 ]
+
+// Определяем составы по признаку isHome
+const homeTeam = computed(() =>
+  lastMatch.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : lastMatch.opponent
+)
+
+const awayTeam = computed(() =>
+  !lastMatch.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : lastMatch.opponent
+)
 </script>
 
 <template>
@@ -54,24 +67,12 @@ const awayScorers = [
 
             <!-- Хозяева -->
             <div class="flex flex-col items-center text-center">
-              <div
-                class="w-16 h-16 lg:w-20 lg:h-20 rounded-full
-                       flex items-center justify-center border-2 mb-3
-                       bg-gradient-to-br"
-                :class="[
-                  lastMatch.isHome ? 'border-ska-silver' : 'border-ska-silver/30',
-                  lastMatch.isHome ? ourTeam.color : lastMatch.opponent.color,
-                ]"
-              >
-                <span class="text-ska-white text-base lg:text-lg font-black">
-                  {{ lastMatch.isHome ? ourTeam.short : lastMatch.opponent.short }}
-                </span>
-              </div>
-              <p class="text-ska-white font-bold text-sm lg:text-base tracking-wide">
-                {{ lastMatch.isHome ? ourTeam.name : lastMatch.opponent.name }}
+              <TeamLogo :team="homeTeam" size="lg" />
+              <p class="text-ska-white font-bold text-sm lg:text-base tracking-wide mt-3">
+                {{ homeTeam.name }}
               </p>
               <p class="text-ska-silver/60 text-xs hidden sm:block mt-0.5">
-                {{ lastMatch.isHome ? ourTeam.city : lastMatch.opponent.city }}
+                {{ homeTeam.city }}
               </p>
             </div>
 
@@ -95,24 +96,12 @@ const awayScorers = [
 
             <!-- Гости -->
             <div class="flex flex-col items-center text-center">
-              <div
-                class="w-16 h-16 lg:w-20 lg:h-20 rounded-full
-                       flex items-center justify-center border-2 mb-3
-                       bg-gradient-to-br"
-                :class="[
-                  !lastMatch.isHome ? 'border-ska-silver' : 'border-ska-silver/30',
-                  !lastMatch.isHome ? ourTeam.color : lastMatch.opponent.color,
-                ]"
-              >
-                <span class="text-ska-white text-base lg:text-lg font-black">
-                  {{ !lastMatch.isHome ? ourTeam.short : lastMatch.opponent.short }}
-                </span>
-              </div>
-              <p class="text-ska-white font-bold text-sm lg:text-base tracking-wide">
-                {{ !lastMatch.isHome ? ourTeam.name : lastMatch.opponent.name }}
+              <TeamLogo :team="awayTeam" size="lg" />
+              <p class="text-ska-white font-bold text-sm lg:text-base tracking-wide mt-3">
+                {{ awayTeam.name }}
               </p>
               <p class="text-ska-silver/60 text-xs hidden sm:block mt-0.5">
-                {{ !lastMatch.isHome ? ourTeam.city : lastMatch.opponent.city }}
+                {{ awayTeam.city }}
               </p>
             </div>
 

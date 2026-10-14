@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { upcomingMatches, ourTeam } from '@/data/matches'
+import TeamLogo from '@/components/TeamLogo.vue'
 
 // Только домашние матчи
 const homeMatches = computed(() => upcomingMatches.filter((m) => m.isHome))
@@ -126,16 +127,19 @@ function selectVip() {
               >
                 <div class="flex items-center justify-between gap-3">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div
-                      class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center border-2
-                             bg-gradient-to-br"
-                      :class="match.opponent.color"
-                    >
-                      <span class="text-ska-white text-[11px] font-black">
-                        {{ match.opponent.short }}
-                      </span>
-                    </div>
-                    <div class="min-w-0">
+                    <!-- Наш логотип -->
+                    <TeamLogo
+                      :team="{ name: ourTeam.name, short: ourTeam.short, color: ourTeam.color, isOurTeam: true }"
+                      size="sm"
+                    />
+                    <!-- VS -->
+                    <span class="text-ska-silver/40 text-xs font-black">VS</span>
+                    <!-- Логотип соперника -->
+                    <TeamLogo
+                      :team="{ name: match.opponent.name, short: match.opponent.short, color: match.opponent.color }"
+                      size="sm"
+                    />
+                    <div class="min-w-0 ml-1">
                       <p class="text-ska-white text-sm font-semibold truncate">
                         {{ ourTeam.name }} — {{ match.opponent.name }}
                       </p>

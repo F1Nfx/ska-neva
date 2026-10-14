@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import LastMatchResult from '@/components/LastMatchResult.vue'
 import LeagueTable from '@/components/LeagueTable.vue'
 import NewsPreview from '@/components/NewsPreview.vue'
+import TeamLogo from '@/components/TeamLogo.vue'
 
 // Дата матча: ближайшая суббота в 18:00
 function getNextMatchDate(): Date {
@@ -89,12 +90,17 @@ function pad(num: number): string {
 
           <!-- Домашняя команда -->
           <div class="flex flex-col items-center text-center">
-            <div class="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-ska-red to-ska-blue
-                        flex items-center justify-center border-4 border-ska-silver shadow-2xl shadow-ska-red/30 mb-4">
-              <span class="text-ska-white text-2xl lg:text-3xl font-black">СКА</span>
-            </div>
-            <h2 class="text-ska-white text-lg lg:text-2xl font-bold tracking-wide">СКА-НЕВА</h2>
-            <p class="text-ska-silver text-xs lg:text-sm mt-1">Санкт-Петербург</p>
+            <TeamLogo
+              :team="{ name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true }"
+              size="xl"
+            />
+            <div class="h-4"></div>
+            <h2 class="text-ska-white text-lg lg:text-2xl font-bold tracking-wide">
+              СКА-НЕВА
+            </h2>
+            <p class="text-ska-silver text-xs lg:text-sm mt-1">
+              Санкт-Петербург
+            </p>
           </div>
 
           <!-- Центр: VS + дата -->

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TeamLogo from '@/components/TeamLogo.vue'
 type Team = {
   position: number
   name: string
@@ -103,15 +104,10 @@ const teams: Team[] = [
 
         <!-- Команда -->
         <div class="flex items-center gap-3 min-w-0">
-          <div
-            class="w-9 h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2"
-            :class="[
-              team.isOurTeam ? 'border-ska-silver' : 'border-ska-silver/30',
-              `bg-gradient-to-br ${team.color}`,
-            ]"
-          >
-            <span class="text-ska-white text-[10px] lg:text-xs font-black">{{ team.short }}</span>
-          </div>
+          <TeamLogo
+            :team="{ name: team.name, short: team.short, color: team.color, isOurTeam: team.isOurTeam }"
+            size="sm"
+          />
           <div class="min-w-0">
             <p class="text-sm lg:text-base font-semibold truncate" :class="team.isOurTeam ? 'text-ska-white' : 'text-ska-white/90'">
               {{ team.name }}

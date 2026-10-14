@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { getMatchById, matchEvents, matchStats, ourTeam } from '@/data/matches'
+import TeamLogo from '@/components/TeamLogo.vue'
 
 const route = useRoute()
 
@@ -44,6 +45,20 @@ function eventIcon(type: string): string {
   if (type === 'sub') return '🔄'
   return '•'
 }
+
+const homeTeam = computed(() => {
+  if (!match.value) return { ...ourTeam, isOurTeam: true }
+  return match.value.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : match.value.opponent
+})
+
+const awayTeam = computed(() => {
+  if (!match.value) return { ...ourTeam, isOurTeam: true }
+  return !match.value.isHome
+    ? { ...ourTeam, isOurTeam: true }
+    : match.value.opponent
+})
 </script>
 
 <template>
@@ -101,20 +116,13 @@ function eventIcon(type: string): string {
           <!-- Матч -->
           <div class="grid grid-cols-3 items-center gap-4 lg:gap-12 max-w-4xl mx-auto">
 
-            <!-- Наша команда -->
+            <!-- Хозяева поля -->
             <div class="flex flex-col items-center text-center">
-              <div class="w-20 h-20 lg:w-28 lg:h-28 rounded-full
-                          bg-gradient-to-br from-ska-red to-ska-blue
-                          flex items-center justify-center border-4 border-ska-silver
-                          shadow-2xl shadow-ska-red/30 mb-4">
-                <span class="text-ska-white text-xl lg:text-2xl font-black">
-                  {{ ourTeam.short }}
-                </span>
-              </div>
-              <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide">
-                {{ ourTeam.name }}
+              <TeamLogo :team="homeTeam" size="lg" />
+              <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide mt-4">
+                {{ homeTeam.name }}
               </h2>
-              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ ourTeam.city }}</p>
+              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ homeTeam.city }}</p>
             </div>
 
             <!-- Центр -->
@@ -143,23 +151,13 @@ function eventIcon(type: string): string {
               </template>
             </div>
 
-            <!-- Соперник -->
+            <!-- Гости поля -->
             <div class="flex flex-col items-center text-center">
-              <div
-                class="w-20 h-20 lg:w-28 lg:h-28 rounded-full
-                       flex items-center justify-center border-4 border-ska-silver/50
-                       shadow-2xl shadow-blue-900/30 mb-4
-                       bg-gradient-to-br"
-                :class="match.opponent.color"
-              >
-                <span class="text-ska-white text-lg lg:text-2xl font-black">
-                  {{ match.opponent.short }}
-                </span>
-              </div>
-              <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide">
-                {{ match.opponent.name }}
+              <TeamLogo :team="awayTeam" size="lg" />
+              <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide mt-4">
+                {{ awayTeam.name }}
               </h2>
-              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ match.opponent.city }}</p>
+              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ awayTeam.city }}</p>
             </div>
 
           </div>
