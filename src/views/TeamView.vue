@@ -1,21 +1,38 @@
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { players } from '@/data/players'
+import TeamLogo from '@/components/TeamLogo.vue'
 import { staff } from '@/data/staff'
 
-const goalkeepers = players.filter((p) => p.position === 'Вратарь')
-const defenders = players.filter((p) => p.position === 'Защитник')
-const midfielders = players.filter((p) => p.position === 'Полузащитник')
-const forwards = players.filter((p) => p.position === 'Нападающий')
+// Теперь игроки хранятся в реактивной переменной
+const players = ref<any[]>([])
+const loading = ref(true)
 
-const groups = [
-  { title: 'Вратари', players: goalkeepers },
-  { title: 'Защитники', players: defenders },
-  { title: 'Полузащитники', players: midfielders },
-  { title: 'Нападающие', players: forwards },
-]
+onMounted(async () => {
+  try {
+    // ВАЖНО: порт 3001!
+    const response = await fetch('http://localhost:3001/api/players')
+    players.value = await response.json()
+  } catch (error) {
+    console.error('Ошибка загрузки игроков:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+// Делаем фильтры через computed, так как данные приходят асинхронно
+const goalkeepers = computed(() => players.value.filter((p) => p.position === 'Вратарь'))
+const defenders = computed(() => players.value.filter((p) => p.position === 'Защитник'))
+const midfielders = computed(() => players.value.filter((p) => p.position === 'Полузащитник'))
+const forwards = computed(() => players.value.filter((p) => p.position === 'Нападающий'))
+
+const groups = computed(() => [
+  { title: 'Вратари', players: goalkeepers.value },
+  { title: 'Защитники', players: defenders.value },
+  { title: 'Полузащитники', players: midfielders.value },
+  { title: 'Нападающие', players: forwards.value },
+])
 </script>
-
 <template>
   <div class="bg-ska-navy min-h-screen">
     <section class="max-w-7xl mx-auto px-6 py-12">
