@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import TeamLogo from '@/components/TeamLogo.vue'
+
 type Team = {
   position: number
   name: string
@@ -16,24 +18,33 @@ type Team = {
   isOurTeam?: boolean
 }
 
-const teams: Team[] = [
-  { position: 1, name: 'Волга', city: 'Тверь', short: 'ВТ', color: 'from-slate-500 to-slate-700', played: 11, wins: 7, draws: 1, losses: 3, goalsFor: 18, goalsAgainst: 10, points: 22 },
-  { position: 2, name: 'СКА-Нева', city: 'Санкт-Петербург', short: 'СКА', color: 'from-ska-red to-ska-blue', played: 11, wins: 6, draws: 2, losses: 3, goalsFor: 17, goalsAgainst: 11, points: 20, isOurTeam: true },
-  { position: 3, name: 'Волга', city: 'Кострома', short: 'ВК', color: 'from-blue-800 to-blue-950', played: 11, wins: 5, draws: 4, losses: 2, goalsFor: 15, goalsAgainst: 10, points: 19 },
-  { position: 4, name: 'Заря', city: 'Балтийск', short: 'ЗБ', color: 'from-sky-700 to-blue-900', played: 11, wins: 5, draws: 3, losses: 3, goalsFor: 14, goalsAgainst: 12, points: 18 },
-  { position: 5, name: 'Шторм', city: 'Санкт-Петербург', short: 'ШТ', color: 'from-sky-500 to-blue-700', played: 11, wins: 4, draws: 3, losses: 4, goalsFor: 13, goalsAgainst: 13, points: 15 },
-  { position: 6, name: 'Лев', city: 'Владимир', short: 'ЛВ', color: 'from-slate-600 to-slate-800', played: 11, wins: 3, draws: 3, losses: 5, goalsFor: 11, goalsAgainst: 15, points: 12 },
-  { position: 7, name: 'Молот', city: 'Нижний Тагил', short: 'МН', color: 'from-red-700 to-red-900', played: 11, wins: 2, draws: 4, losses: 5, goalsFor: 10, goalsAgainst: 16, points: 10 },
-  { position: 8, name: 'Замок', city: 'Выборг', short: 'ЗВ', color: 'from-indigo-700 to-indigo-900', played: 11, wins: 1, draws: 5, losses: 5, goalsFor: 9, goalsAgainst: 17, points: 8 },
-  { position: 9, name: 'Курск', city: 'Курск', short: 'КР', color: 'from-blue-600 to-blue-800', played: 11, wins: 2, draws: 2, losses: 7, goalsFor: 10, goalsAgainst: 19, points: 8 },
-  { position: 10, name: 'Красноярск', city: 'Красноярск', short: 'КЯ', color: 'from-orange-600 to-orange-800', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 8, goalsAgainst: 18, points: 7 },
-  { position: 11, name: 'Маяк', city: 'Ульяновск', short: 'МУ', color: 'from-emerald-700 to-emerald-900', played: 11, wins: 1, draws: 4, losses: 6, goalsFor: 7, goalsAgainst: 17, points: 7 },
-  { position: 12, name: 'Барс', city: 'Владикавказ', short: 'БА', color: 'from-yellow-600 to-yellow-800', played: 11, wins: 1, draws: 3, losses: 7, goalsFor: 9, goalsAgainst: 20, points: 6 },
-  { position: 13, name: 'Луч', city: 'Новосибирск', short: 'ЛН', color: 'from-cyan-700 to-cyan-900', played: 11, wins: 1, draws: 2, losses: 8, goalsFor: 8, goalsAgainst: 21, points: 5 },
-  { position: 14, name: 'Амур', city: 'Комсомольск-на-Амуре', short: 'АМ', color: 'from-teal-700 to-teal-900', played: 11, wins: 1, draws: 1, losses: 9, goalsFor: 6, goalsAgainst: 22, points: 4 },
-  { position: 15, name: 'Сахалин', city: 'Южно-Сахалинск', short: 'СХ', color: 'from-green-700 to-green-900', played: 11, wins: 0, draws: 3, losses: 8, goalsFor: 5, goalsAgainst: 20, points: 3 },
-  { position: 16, name: 'Элиста', city: 'Элиста', short: 'ЭЛ', color: 'from-purple-700 to-purple-950', played: 11, wins: 0, draws: 2, losses: 9, goalsFor: 4, goalsAgainst: 24, points: 2 },
-]
+const teams = ref<Team[]>([])
+
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/standings')
+    const data = await response.json()
+    
+    // Преобразуем данные из БД под наш шаблон
+    teams.value = data.map((s: any) => ({
+      position: s.position,
+      name: s.team.name,
+      city: s.team.city,
+      short: s.team.shortName,
+      color: s.team.color,
+      isOurTeam: s.team.isOurTeam,
+      played: s.played,
+      wins: s.wins,
+      draws: s.draws,
+      losses: s.losses,
+      goalsFor: s.goalsFor,
+      goalsAgainst: s.goalsAgainst,
+      points: s.points,
+    }))
+  } catch (error) {
+    console.error('Ошибка загрузки таблицы:', error)
+  }
+})
 </script>
 
 <template>
@@ -78,13 +89,11 @@ const teams: Team[] = [
         v-for="team in teams"
         :key="team.position"
         class="relative grid grid-cols-[40px_1fr_70px] lg:grid-cols-[40px_1fr_60px_60px_60px_60px_100px_70px] gap-3 px-6 py-4 items-center border-b border-ska-blue/20 last:border-b-0 transition-colors hover:bg-ska-blue/10"
-        :class="team.isOurTeam && 'bg-ska-red/5'"
       >
         <!-- Зональная полоса слева -->
         <div
           class="absolute left-0 top-0 bottom-0 w-1"
           :class="[
-            team.isOurTeam ? 'bg-ska-red' :
             team.position <= 2 ? 'bg-emerald-500' :
             team.position >= 15 ? 'bg-ska-red/60' : 'bg-transparent',
           ]"
@@ -94,7 +103,6 @@ const teams: Team[] = [
         <div
           class="text-center text-sm font-bold tabular-nums"
           :class="[
-            team.isOurTeam ? 'text-ska-red' :
             team.position <= 2 ? 'text-emerald-400' :
             team.position >= 15 ? 'text-ska-red/80' : 'text-ska-silver/70',
           ]"
@@ -130,7 +138,6 @@ const teams: Team[] = [
         <!-- Очки -->
         <div
           class="text-center text-base lg:text-lg font-black tabular-nums"
-          :class="team.isOurTeam ? 'text-ska-red' : 'text-ska-white'"
         >
           {{ team.points }}
         </div>

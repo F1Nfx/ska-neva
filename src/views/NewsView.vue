@@ -1,16 +1,38 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { news, tagColors, type Tag } from '@/data/news'
 
-const activeTag = ref<'Все' | Tag>('Все')
+const news = ref<any[]>([])
+const loading = ref(true)
+const activeTag = ref<'Все' | string>('Все')
 
-const tags: ('Все' | Tag)[] = ['Все', 'Матч', 'Трансфер', 'Интервью', 'Клуб']
+const tags = ['Все', 'Матч', 'Трансфер', 'Интервью', 'Клуб']
 
-const filteredNews = computed(() => {
-  if (activeTag.value === 'Все') return news
-  return news.filter((n) => n.tag === activeTag.value)
+// Загружаем новости из базы
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/news')
+    news.value = await response.json()
+  } catch (error) {
+    console.error('Ошибка загрузки новостей:', error)
+  } finally {
+    loading.value = false
+  }
 })
+
+// Фильтрация
+const filteredNews = computed(() => {
+  if (activeTag.value === 'Все') return news.value
+  return news.value.filter((n) => n.tag === activeTag.value)
+})
+
+// Цвета тегов
+const tagColors: Record<string, string> = {
+  'Матч': 'bg-ska-red',
+  'Трансфер': 'bg-ska-blue',
+  'Интервью': 'bg-emerald-600',
+  'Клуб': 'bg-purple-700',
+}
 </script>
 
 <template>
@@ -81,7 +103,7 @@ const filteredNews = computed(() => {
             </p>
             <div class="flex items-center justify-between pt-4 border-t border-ska-blue/20">
               <span class="text-ska-silver/50 text-xs uppercase tracking-wider">
-                {{ item.date }}
+                {{ item.dateStr }}
               </span>
               <span class="text-ska-red text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
                 Читать →

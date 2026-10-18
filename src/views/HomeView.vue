@@ -1,36 +1,68 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import LastMatchResult from '@/components/LastMatchResult.vue'
 import LeagueTable from '@/components/LeagueTable.vue'
 import NewsPreview from '@/components/NewsPreview.vue'
 import TeamLogo from '@/components/TeamLogo.vue'
 
-// Дата матча: ближайшая суббота в 18:00
-function getNextMatchDate(): Date {
-  const now = new Date()
-  const target = new Date(now)
-  const dayOfWeek = now.getDay() // 0 = воскресенье, 6 = суббота
-  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7
-  target.setDate(now.getDate() + daysUntilSaturday)
-  target.setHours(18, 0, 0, 0)
-  return target
-}
-
-const matchDate = ref<Date>(getNextMatchDate())
+// Данные матча
+const nextMatch = ref<any>(null)
+const matchDate = ref<Date>(new Date())
 const now = ref<Date>(new Date())
 let intervalId: number | undefined
 
-onMounted(() => {
+onMounted(async () => {
+  // Запускаем таймер
   intervalId = window.setInterval(() => {
     now.value = new Date()
   }, 1000)
+
+  // Загружаем матчи
+  try {
+    const response = await fetch('http://localhost:3001/api/matches')
+    const matches = await response.json()
+    
+    // Ищем ближайший предстоящий матч
+    const upcoming = matches.filter((m: any) => m.status === 'upcoming')
+    
+    if (upcoming.length > 0) {
+      // Бэкенд отдает их по убыванию ID, поэтому берем последний в списке
+      const m = upcoming[upcoming.length - 1]
+      const isHome = m.homeTeam.isOurTeam
+      
+      nextMatch.value = {
+        ...m,
+        isHome,
+        opponent: isHome ? m.awayTeam : m.homeTeam,
+      }
+
+      // Правильно парсим русскую дату для таймера
+      const months: Record<string, number> = {
+        'января': 0, 'февраля': 1, 'марта': 2, 'апреля': 3, 'мая': 4, 'июня': 5,
+        'июля': 6, 'августа': 7, 'сентября': 8, 'октября': 9, 'ноября': 10, 'декабря': 11
+      }
+      const [day, monthStr, year] = m.dateStr.split(' ')
+      const [hours, minutes] = m.time.split(':')
+      
+      matchDate.value = new Date(
+        Number(year), 
+        months[monthStr] || 0, 
+        Number(day), 
+        Number(hours), 
+        Number(minutes)
+      )
+    }
+  } catch (error) {
+    console.error('Ошибка загрузки следующего матча:', error)
+  }
 })
 
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId)
 })
 
-// Разница во времени
+// Таймер
 const timeLeft = computed(() => {
   const diff = matchDate.value.getTime() - now.value.getTime()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
@@ -42,23 +74,6 @@ const timeLeft = computed(() => {
   }
 })
 
-// Форматирование даты на русском
-const formattedDate = computed(() => {
-  return matchDate.value.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-})
-
-const formattedTime = computed(() => {
-  return matchDate.value.toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-})
-
-// Для красоты: 05, 09, 03 вместо 5, 9, 3
 function pad(num: number): string {
   return num.toString().padStart(2, '0')
 }
@@ -74,21 +89,21 @@ function pad(num: number): string {
 
       <div class="relative max-w-7xl mx-auto px-6 py-16 lg:py-24">
 
-        <!-- Верхняя строка: турнир и тур -->
+        <!-- Верхняя строка: турнир и тур (Используем данные из API) -->
         <div class="flex items-center justify-center gap-3 mb-10 text-sm">
           <span class="px-3 py-1 bg-ska-red/20 border border-ska-red/50 rounded-full text-ska-red font-semibold tracking-wider uppercase">
-            ФНЛ-3
+            {{ nextMatch?.tournament || 'ФНЛ-3' }}
           </span>
           <span class="text-ska-silver/60">•</span>
           <span class="text-ska-silver tracking-wider uppercase">
-            Тур 11 · Сезон 2025/26
+            Тур {{ nextMatch?.tour || '...' }} · Сезон 2025/26
           </span>
         </div>
 
         <!-- Матч: команда — VS — команда -->
         <div class="grid grid-cols-3 items-center gap-4 lg:gap-12 mb-12">
 
-          <!-- Домашняя команда -->
+          <!-- Домашняя команда (Наша) -->
           <div class="flex flex-col items-center text-center">
             <TeamLogo
               :team="{ name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true }"
@@ -107,26 +122,34 @@ function pad(num: number): string {
           <div class="flex flex-col items-center">
             <span class="text-ska-silver/40 text-4xl lg:text-6xl font-black mb-4">VS</span>
             <div class="text-center">
-              <p class="text-ska-white text-sm lg:text-base font-semibold">{{ formattedDate }}</p>
-              <p class="text-ska-red text-2xl lg:text-3xl font-black mt-1">{{ formattedTime }}</p>
+              <p class="text-ska-white text-sm lg:text-base font-semibold">{{ nextMatch?.dateStr }}</p>
+              <p class="text-ska-red text-2xl lg:text-3xl font-black mt-1">{{ nextMatch?.time }}</p>
             </div>
           </div>
 
-          <!-- Гостевая команда -->
+          <!-- Гостевая команда (Соперник из API) -->
           <div class="flex flex-col items-center text-center">
-            <div class="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-blue-800 to-blue-950
-                        flex items-center justify-center border-4 border-ska-silver/50 shadow-2xl shadow-blue-900/30 mb-4">
-              <span class="text-ska-white text-xl lg:text-2xl font-black">ДМ</span>
-            </div>
-            <h2 class="text-ska-white text-lg lg:text-2xl font-bold tracking-wide">ДИНАМО</h2>
-            <p class="text-ska-silver text-xs lg:text-sm mt-1">Кострома</p>
+            <TeamLogo 
+              v-if="nextMatch" 
+              :team="nextMatch.opponent" 
+              size="xl" 
+            />
+            <div v-else class="w-24 h-24 lg:w-32 lg:h-32"></div> <!-- Заглушка, пока грузится -->
+            
+            <div class="h-4"></div>
+            <h2 class="text-ska-white text-lg lg:text-2xl font-bold tracking-wide uppercase">
+              {{ nextMatch?.opponent?.name || 'Соперник' }}
+            </h2>
+            <p class="text-ska-silver text-xs lg:text-sm mt-1">
+              {{ nextMatch?.opponent?.city || 'Город' }}
+            </p>
           </div>
 
         </div>
 
-        <!-- Место проведения -->
+        <!-- Место проведения (Из API) -->
         <p class="text-center text-ska-silver text-sm mb-10">
-          🏟 «Нева-Арена», Санкт-Петербург
+          🏟 {{ nextMatch?.stadium || '«Нева-Арена», Санкт-Петербург' }}
         </p>
 
         <!-- Таймер обратного отсчёта -->
@@ -167,12 +190,12 @@ function pad(num: number): string {
             Купить билет
           </RouterLink>
           <RouterLink
-            to="/matches"
+            :to="nextMatch ? `/matches/${nextMatch.id}` : '/matches'"
             class="w-full sm:w-auto px-8 py-3.5 border-2 border-ska-silver/40 hover:border-ska-silver
                    text-ska-white font-bold text-sm uppercase tracking-wider
                    rounded-md transition-all hover:bg-ska-silver/10"
           >
-            Все матчи
+            Подробнее о матче
           </RouterLink>
         </div>
 
@@ -185,6 +208,7 @@ function pad(num: number): string {
     <!--Блок мини турнирной таблицы-->
     <LeagueTable />
     
+    <!--Блок превью новостей-->
     <NewsPreview />
 
   </div>

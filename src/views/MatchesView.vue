@@ -3,13 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import FullLeagueTable from '@/components/FullLeagueTable.vue'
 import TeamLogo from '@/components/TeamLogo.vue'
-import {
-  finishedMatches,
-  upcomingMatches,
-  allMatches,
-  ourTeam,
-  type Match,
-} from '@/data/matches'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,24 +21,48 @@ function switchTab(tab: Tab) {
   router.replace({ query: tab === 'table' ? { tab: 'table' } : {} })
 }
 
+const matches = ref<any[]>([])
+const loading = ref(true)
+
+// Загружаем матчи из БД
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/matches')
+    const rawMatches = await response.json()
+    
+    // ID нашей команды в БД (СКА-Нева)
+    const ourTeamId = 2 
+
+    // Преобразуем данные из БД под наш шаблон
+    matches.value = rawMatches.map((m: any) => {
+      const isHome = m.homeTeam.id === ourTeamId
+      return {
+        id: m.id,
+        tour: m.tour,
+        tournament: m.tournament,
+        date: m.dateStr, // Переименовываем для шаблона
+        time: m.time,
+        stadium: m.stadium,
+        status: m.status,
+        isHome,
+        opponent: isHome ? m.awayTeam : m.homeTeam,
+        scoreUs: isHome ? m.homeScore : m.awayScore,
+        scoreThem: isHome ? m.awayScore : m.homeScore,
+      }
+    })
+  } catch (error) {
+    console.error('Ошибка загрузки матчей:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
 const activeFilter = ref<'all' | 'finished' | 'upcoming'>('all')
 
-function getHomeTeam(match: Match) {
-  return match.isHome
-    ? { ...ourTeam, isOurTeam: true }
-    : match.opponent
-}
-
-function getAwayTeam(match: Match) {
-  return !match.isHome
-    ? { ...ourTeam, isOurTeam: true }
-    : match.opponent
-}
-
 const filteredMatches = computed(() => {
-  if (activeFilter.value === 'all') return allMatches
-  if (activeFilter.value === 'finished') return finishedMatches
-  return upcomingMatches
+  if (activeFilter.value === 'all') return matches.value
+  if (activeFilter.value === 'finished') return matches.value.filter(m => m.status === 'finished')
+  return matches.value.filter(m => m.status === 'upcoming')
 })
 
 const filters = [
@@ -54,8 +71,8 @@ const filters = [
   { value: 'finished' as const, label: 'Прошедшие' },
 ]
 
-function matchResult(match: Match): 'win' | 'draw' | 'loss' | null {
-  if (match.status !== 'finished' || match.scoreUs === undefined || match.scoreThem === undefined) return null
+function matchResult(match: any): 'win' | 'draw' | 'loss' | null {
+  if (match.status !== 'finished' || match.scoreUs === null || match.scoreThem === null) return null
   if (match.scoreUs > match.scoreThem) return 'win'
   if (match.scoreUs < match.scoreThem) return 'loss'
   return 'draw'
@@ -65,6 +82,19 @@ const resultLabels = {
   win: { text: 'Победа', class: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/40' },
   draw: { text: 'Ничья', class: 'bg-ska-silver/10 text-ska-silver border-ska-silver/40' },
   loss: { text: 'Поражение', class: 'bg-ska-red/20 text-ska-red border-ska-red/40' },
+}
+
+// Хелперы для шаблона (подставляют нашу команду или соперника)
+function getHomeTeam(match: any) {
+  return match.isHome 
+    ? { name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true, city: 'Санкт-Петербург' } 
+    : match.opponent
+}
+
+function getAwayTeam(match: any) {
+  return !match.isHome 
+    ? { name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true, city: 'Санкт-Петербург' } 
+    : match.opponent
 }
 </script>
 

@@ -1,13 +1,46 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { upcomingMatches, ourTeam } from '@/data/matches'
+import { ref, computed, onMounted } from 'vue'
 import TeamLogo from '@/components/TeamLogo.vue'
 
-// Только домашние матчи
-const homeMatches = computed(() => upcomingMatches.filter((m) => m.isHome))
+// Данные нашей команды для шаблона
+const ourTeam = { name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue' }
 
-const selectedMatchId = ref<number>(homeMatches.value[0]?.id ?? 0)
+// Массив для домашних матчей из БД
+const homeMatches = ref<any[]>([])
+const selectedMatchId = ref<number>(0)
+
 const selectedMatch = computed(() => homeMatches.value.find((m) => m.id === selectedMatchId.value))
+
+// Загружаем матчи из БД
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/matches')
+    const data = await response.json()
+    
+    // Фильтруем: только предстоящие и только домашние (где isOurTeam === true)
+    const filtered = data.filter((m: any) => m.status === 'upcoming' && m.homeTeam.isOurTeam)
+    
+    // Преобразуем под структуру нашего шаблона
+    homeMatches.value = filtered.map((m: any) => ({
+      id: m.id,
+      tour: m.tour,
+      date: m.dateStr,
+      time: m.time,
+      opponent: {
+        name: m.awayTeam.name,
+        short: m.awayTeam.shortName,
+        color: m.awayTeam.color
+      }
+    }))
+    
+    // Автоматически выбираем первый матч
+    if (homeMatches.value.length > 0) {
+      selectedMatchId.value = homeMatches.value[0]!.id
+    }
+  } catch (error) {
+    console.error('Ошибка загрузки матчей:', error)
+  }
+})
 
 // ── Секторы стадиона ─────────────────────────────────────
 type PriceOption = { label: string; price: number }

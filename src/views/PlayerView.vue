@@ -1,18 +1,34 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { getPlayerById } from '@/data/players'
+import TeamLogo from '@/components/TeamLogo.vue'
 
 const route = useRoute()
+const player = ref<any>(null)
+const loading = ref(true)
 
-const player = computed(() => {
-  const id = Number(route.params.id)
-  return getPlayerById(id)
+onMounted(async () => {
+  try {
+    const response = await fetch(`http://localhost:3001/api/players/${route.params.id}`)
+    if (!response.ok) throw new Error('Игрок не найден')
+    player.value = await response.json()
+    
+    // Обновляем title страницы
+    if (player.value) {
+      document.title = `${player.value.name} · ПФК «СКА-Нева»`
+    }
+  } catch (error) {
+    console.error(error)
+    player.value = null
+  } finally {
+    loading.value = false
+  }
 })
 
+// Так как stats в базе — это массив (даже если там 1 запись), берем первый элемент
 const stats = computed(() => {
-  if (!player.value) return []
-  const s = player.value.stats
+  if (!player.value || !player.value.stats || player.value.stats.length === 0) return []
+  const s = player.value.stats[0]
   return [
     { label: 'Матчи', value: s.matches },
     { label: 'Голы', value: s.goals },
@@ -21,12 +37,6 @@ const stats = computed(() => {
     { label: 'Красные', value: s.redCards },
   ]
 })
-
-watch(player, (newPlayer) => {
-  if (newPlayer) {
-    document.title = `${newPlayer.name} · ПФК «СКА-Нева»`
-  }
-}, { immediate: true })
 </script>
 
 <template>
