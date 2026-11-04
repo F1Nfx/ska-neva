@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import TeamLogo from '@/components/TeamLogo.vue'
 
@@ -13,7 +13,6 @@ onMounted(async () => {
     if (!response.ok) throw new Error('Игрок не найден')
     player.value = await response.json()
     
-    // Обновляем title страницы
     if (player.value) {
       document.title = `${player.value.name} · ПФК «СКА-Нева»`
     }
@@ -25,7 +24,6 @@ onMounted(async () => {
   }
 })
 
-// Так как stats в базе — это массив (даже если там 1 запись), берем первый элемент
 const stats = computed(() => {
   if (!player.value || !player.value.stats || player.value.stats.length === 0) return []
   const s = player.value.stats[0]
@@ -82,7 +80,7 @@ const stats = computed(() => {
         <div class="absolute inset-0 opacity-[0.05]"
              style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 28px 28px;"></div>
 
-        <div class="relative max-w-7xl mx-auto px-6 py-10 lg:py-16">
+        <div class="relative max-w-7xl mx-auto px-6 pt-10 pb-0 lg:pt-16 lg:pb-0">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
 
             <!-- Левая колонка: номер + имя -->
@@ -119,35 +117,29 @@ const stats = computed(() => {
               </div>
             </div>
 
-            <!-- Центр: силуэт игрока -->
-            <div class="lg:col-span-5 order-1 lg:order-2 flex items-end justify-center">
-              <div class="relative w-full max-w-md aspect-[3/4]">
+            <!-- Центр: фото игрока -->
+            <div class="lg:col-span-5 order-1 lg:order-2 flex items-end justify-center relative">
+              <!-- Увеличили max-w-lg до max-w-xl и высоту до 650px -->
+              <div class="relative w-full max-w-xl h-[450px] lg:h-[650px] flex justify-center items-end">
                 <!-- Свечение за игроком -->
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_70%,_rgba(27,58,107,0.6),_transparent_60%)]"></div>
 
-                <!-- SVG-силуэт крупно -->
-                <svg
-                  viewBox="0 0 200 320"
-                  class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-full
-                         text-ska-silver/20"
-                  fill="currentColor"
-                  preserveAspectRatio="xMidYMax meet"
-                >
-                  <circle cx="100" cy="70" r="42" />
-                  <rect x="88" y="105" width="24" height="20" />
-                  <path d="M 30 145 Q 60 118 88 125 L 112 125 Q 140 118 170 145 L 185 320 L 15 320 Z" />
-                  <path d="M 80 130 Q 100 145 120 130 L 125 138 Q 100 158 75 138 Z"
-                        class="text-ska-red/40" fill="currentColor" />
-                </svg>
+                <!-- ФОТО ИГРОКА -->
+                <img
+                  :src="`/players/${player.id}-full.png`"
+                  :alt="player.name"
+                  class="w-full h-full object-contain object-bottom z-10 drop-shadow-2xl"
+                  @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                />
 
                 <!-- Красная линия снизу (декор) -->
                 <div class="absolute bottom-0 left-1/2 -translate-x-1/2
-                            w-32 h-1 bg-gradient-to-r from-transparent via-ska-red to-transparent"></div>
+                            w-32 h-1 bg-gradient-to-r from-transparent via-ska-red to-transparent z-20"></div>
               </div>
             </div>
 
             <!-- Правая колонка: инфо -->
-            <div class="lg:col-span-3 order-3">
+            <div class="lg:col-span-3 order-3 pb-10">
               <div class="bg-[#0A1425]/60 backdrop-blur-sm
                           border border-ska-blue/40 rounded-xl p-6">
                 <h3 class="text-ska-silver/60 text-[11px] uppercase tracking-[0.25em] mb-5">
@@ -213,7 +205,7 @@ const stats = computed(() => {
               Статистика
             </h2>
             <p class="text-ska-silver/60 text-sm mt-1">
-              Сезон {{ player.stats.season }} · ФНЛ-3
+              Сезон {{ player.stats[0]?.season || '2025/26' }} · ФНЛ-3
             </p>
           </div>
         </div>

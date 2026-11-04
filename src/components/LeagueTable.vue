@@ -10,9 +10,20 @@ onMounted(async () => {
     const response = await fetch('http://localhost:3001/api/standings')
     const data = await response.json()
     teams.value = data.slice(0, 8).map((s: any) => ({
-      position: s.position, name: s.team.name, city: s.team.city, short: s.team.shortName,
-      color: s.team.color, isOurTeam: s.team.isOurTeam, played: s.played, wins: s.wins,
-      draws: s.draws, losses: s.losses, goalsFor: s.goalsFor, goalsAgainst: s.goalsAgainst, points: s.points
+      position: s.position, 
+      name: s.team.name, 
+      city: s.team.city, 
+      short: s.team.shortName,
+      color: s.team.color, 
+      logoUrl: s.team.logoUrl, 
+      isOurTeam: s.team.isOurTeam,
+      played: s.played, 
+      wins: s.wins,
+      draws: s.draws, 
+      losses: s.losses, 
+      goalsFor: s.goalsFor, 
+      goalsAgainst: s.goalsAgainst, 
+      points: s.points
     }))
   } catch (error) {
     console.error('Ошибка загрузки таблицы:', error)

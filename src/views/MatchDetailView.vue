@@ -1,42 +1,69 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { getMatchById, matchEvents, matchStats, ourTeam } from '@/data/matches'
 import TeamLogo from '@/components/TeamLogo.vue'
 
 const route = useRoute()
+const matchData = ref<any>(null)
+const loading = ref(true)
 
-const match = computed(() => {
-  const id = Number(route.params.id)
-  return getMatchById(id)
+onMounted(async () => {
+  try {
+    const response = await fetch(`http://localhost:3001/api/matches/${route.params.id}`)
+    if (!response.ok) throw new Error('Матч не найден')
+    matchData.value = await response.json()
+  } catch (error) {
+    console.error(error)
+    matchData.value = null
+  } finally {
+    loading.value = false
+  }
 })
 
-const events = computed(() => {
-  if (!match.value) return []
-  return matchEvents[match.value.id] ?? []
+// Подготавливаем команды для шаблона (добавляем поле short для логотипа)
+const homeTeam = computed(() => {
+  if (!matchData.value) return null
+  const t = matchData.value.homeTeam
+  return { ...t, short: t.shortName }
 })
 
-const stats = computed(() => {
-  if (!match.value) return null
-  return matchStats[match.value.id] ?? null
+const awayTeam = computed(() => {
+  if (!matchData.value) return null
+  const t = matchData.value.awayTeam
+  return { ...t, short: t.shortName }
 })
 
-// Результат
 const result = computed(() => {
-  if (!match.value || match.value.status !== 'finished') return null
-  const us = match.value.scoreUs ?? 0
-  const them = match.value.scoreThem ?? 0
+  if (!matchData.value || matchData.value.status !== 'finished') return null
+  // Определяем результат для нашей команды
+  const us = matchData.value.homeTeam.isOurTeam ? matchData.value.homeScore : matchData.value.awayScore
+  const them = matchData.value.homeTeam.isOurTeam ? matchData.value.awayScore : matchData.value.homeScore
+
   if (us > them) return { type: 'win', text: 'Победа', cls: 'text-emerald-400' }
   if (us < them) return { type: 'loss', text: 'Поражение', cls: 'text-ska-red' }
   return { type: 'draw', text: 'Ничья', cls: 'text-ska-silver' }
 })
 
-watch(match, (newMatch) => {
-  if (newMatch) {
-    const opponentName = newMatch.opponent.name
-    document.title = `СКА-Нева — ${opponentName} · Матч · ПФК «СКА-Нева»`
+const events = computed(() => {
+  if (!matchData.value || !matchData.value.events) return []
+  return [...matchData.value.events].sort((a: any, b: any) => a.minute - b.minute)
+})
+
+const stats = computed(() => {
+  if (!matchData.value || !matchData.value.stats || matchData.value.stats.length < 2) return null
+  
+  const homeStats = matchData.value.stats.find((s: any) => s.teamId === matchData.value.homeTeamId) || {}
+  const awayStats = matchData.value.stats.find((s: any) => s.teamId === matchData.value.awayTeamId) || {}
+  
+  return {
+    possession: [homeStats.possession || 0, awayStats.possession || 0],
+    shots: [homeStats.shots || 0, awayStats.shots || 0],
+    shotsOnTarget: [homeStats.shotsOnTarget || 0, awayStats.shotsOnTarget || 0],
+    corners: [homeStats.corners || 0, awayStats.corners || 0],
+    fouls: [homeStats.fouls || 0, awayStats.fouls || 0],
+    yellowCards: [homeStats.yellowCards || 0, awayStats.yellowCards || 0],
   }
-}, { immediate: true })
+})
 
 function eventIcon(type: string): string {
   if (type === 'goal') return '⚽'
@@ -45,35 +72,16 @@ function eventIcon(type: string): string {
   if (type === 'sub') return '🔄'
   return '•'
 }
-
-const homeTeam = computed(() => {
-  if (!match.value) return { ...ourTeam, isOurTeam: true }
-  return match.value.isHome
-    ? { ...ourTeam, isOurTeam: true }
-    : match.value.opponent
-})
-
-const awayTeam = computed(() => {
-  if (!match.value) return { ...ourTeam, isOurTeam: true }
-  return !match.value.isHome
-    ? { ...ourTeam, isOurTeam: true }
-    : match.value.opponent
-})
 </script>
 
 <template>
   <div class="bg-ska-navy min-h-screen">
 
     <!-- Матч не найден -->
-    <div v-if="!match" class="max-w-7xl mx-auto px-6 py-20 text-center">
+    <div v-if="!matchData" class="max-w-7xl mx-auto px-6 py-20 text-center">
       <h1 class="text-ska-white text-3xl font-black uppercase mb-4">Матч не найден</h1>
       <p class="text-ska-silver/60 mb-8">Возможно, он был удалён или перенесён.</p>
-      <RouterLink
-        to="/matches"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-ska-red hover:bg-red-700
-               text-ska-white font-bold text-sm uppercase tracking-wider
-               rounded-md transition-colors"
-      >
+      <RouterLink to="/matches" class="inline-flex items-center gap-2 px-6 py-3 bg-ska-red hover:bg-red-700 text-ska-white font-bold text-sm uppercase tracking-wider rounded-md transition-colors">
         ← К матчам
       </RouterLink>
     </div>
@@ -86,7 +94,7 @@ const awayTeam = computed(() => {
           <span>/</span>
           <RouterLink to="/matches" class="hover:text-ska-white transition-colors">Матчи</RouterLink>
           <span>/</span>
-          <span class="text-ska-silver">Тур {{ match.tour }}</span>
+          <span class="text-ska-silver">Тур {{ matchData.tour }}</span>
         </nav>
       </div>
 
@@ -99,13 +107,12 @@ const awayTeam = computed(() => {
 
           <!-- Турнир и статус -->
           <div class="flex items-center justify-center gap-3 mb-10 text-sm">
-            <span class="px-3 py-1 bg-ska-red/20 border border-ska-red/50 rounded-full
-                         text-ska-red font-semibold tracking-wider uppercase">
-              {{ match.tournament }}
+            <span class="px-3 py-1 bg-ska-red/20 border border-ska-red/50 rounded-full text-ska-red font-semibold tracking-wider uppercase">
+              {{ matchData.tournament }}
             </span>
             <span class="text-ska-silver/60">•</span>
             <span class="text-ska-silver tracking-wider uppercase">
-              Тур {{ match.tour }}
+              Тур {{ matchData.tour }}
             </span>
             <span v-if="result" class="text-ska-silver/60">•</span>
             <span v-if="result" :class="result.cls" class="font-bold uppercase tracking-wider">
@@ -116,55 +123,45 @@ const awayTeam = computed(() => {
           <!-- Матч -->
           <div class="grid grid-cols-3 items-center gap-4 lg:gap-12 max-w-4xl mx-auto">
 
-            <!-- Хозяева поля -->
+            <!-- Хозяева -->
             <div class="flex flex-col items-center text-center">
-              <TeamLogo :team="homeTeam" size="lg" />
+              <TeamLogo v-if="homeTeam" :team="homeTeam" size="lg" />
               <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide mt-4">
-                {{ homeTeam.name }}
+                {{ homeTeam?.name }}
               </h2>
-              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ homeTeam.city }}</p>
+              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ homeTeam?.city }}</p>
             </div>
 
             <!-- Центр -->
             <div class="flex flex-col items-center">
-              <template v-if="match.status === 'finished'">
+              <template v-if="matchData.status === 'finished'">
                 <div class="flex items-center gap-3 lg:gap-5">
-                  <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">
-                    {{ match.scoreUs }}
-                  </span>
+                  <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ matchData.homeScore }}</span>
                   <span class="text-ska-silver/40 text-3xl lg:text-5xl font-thin">:</span>
-                  <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">
-                    {{ match.scoreThem }}
-                  </span>
+                  <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ matchData.awayScore }}</span>
                 </div>
-                <span class="text-ska-silver/50 text-[10px] uppercase tracking-widest mt-3">
-                  Матч завершён
-                </span>
+                <span class="text-ska-silver/50 text-[10px] uppercase tracking-widest mt-3">Матч завершён</span>
               </template>
               <template v-else>
-                <span class="text-ska-white text-2xl lg:text-3xl font-bold">
-                  {{ match.date }}
-                </span>
-                <span class="text-ska-red text-3xl lg:text-4xl font-black mt-2 tabular-nums">
-                  {{ match.time }}
-                </span>
+                <span class="text-ska-white text-2xl lg:text-3xl font-bold">{{ matchData.dateStr }}</span>
+                <span class="text-ska-red text-3xl lg:text-4xl font-black mt-2 tabular-nums">{{ matchData.time }}</span>
               </template>
             </div>
 
-            <!-- Гости поля -->
+            <!-- Гости -->
             <div class="flex flex-col items-center text-center">
-              <TeamLogo :team="awayTeam" size="lg" />
+              <TeamLogo v-if="awayTeam" :team="awayTeam" size="lg" />
               <h2 class="text-ska-white text-base lg:text-xl font-bold tracking-wide mt-4">
-                {{ awayTeam.name }}
+                {{ awayTeam?.name }}
               </h2>
-              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ awayTeam.city }}</p>
+              <p class="text-ska-silver text-xs lg:text-sm mt-1">{{ awayTeam?.city }}</p>
             </div>
 
           </div>
 
           <!-- Стадион -->
           <p class="text-center text-ska-silver text-sm mt-10">
-            🏟 {{ match.stadium }}
+            🏟 {{ matchData.stadium }}
           </p>
 
         </div>
@@ -173,7 +170,7 @@ const awayTeam = computed(() => {
       <!-- Контент -->
       <section class="max-w-7xl mx-auto px-6 py-12">
 
-        <div v-if="match.status === 'finished'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div v-if="matchData.status === 'finished'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           <!-- Хронология -->
           <div>
@@ -192,10 +189,8 @@ const awayTeam = computed(() => {
               <div
                 v-for="(event, i) in events"
                 :key="i"
-                class="flex items-center gap-4 p-4
-                       bg-gradient-to-br from-[#0A1425] to-[#0F2444]
-                       border border-ska-blue/30 rounded-xl"
-                :class="event.team === 'home' ? 'border-l-4 border-l-ska-red' : 'border-r-4 border-r-ska-silver/40'"
+                class="flex items-center gap-4 p-4 bg-gradient-to-br from-[#0A1425] to-[#0F2444] border border-ska-blue/30 rounded-xl"
+                :class="event.teamId === matchData.homeTeamId ? 'border-l-4 border-l-ska-red' : 'border-r-4 border-r-ska-silver/40'"
               >
                 <span class="text-ska-red font-black text-sm tabular-nums w-10 text-center">
                   {{ event.minute }}'
@@ -203,7 +198,7 @@ const awayTeam = computed(() => {
                 <span class="text-2xl">{{ eventIcon(event.type) }}</span>
                 <div class="flex-1 min-w-0">
                   <p class="text-ska-white font-semibold text-sm truncate">
-                    {{ event.player }}
+                    {{ event.playerName }}
                   </p>
                   <p v-if="event.note" class="text-ska-silver/50 text-xs truncate">
                     {{ event.note }}
@@ -226,8 +221,7 @@ const awayTeam = computed(() => {
               Статистика матча пока не добавлена.
             </div>
 
-            <div v-else class="bg-gradient-to-br from-[#0A1425] to-[#0F2444]
-                              border border-ska-blue/30 rounded-xl p-6 space-y-5">
+            <div v-else class="bg-gradient-to-br from-[#0A1425] to-[#0F2444] border border-ska-blue/30 rounded-xl p-6 space-y-5">
 
               <div v-for="row in [
                 { label: 'Владение мячом', values: stats.possession, suffix: '%' },
@@ -271,26 +265,14 @@ const awayTeam = computed(() => {
           <p class="text-ska-silver/60 text-sm uppercase tracking-widest mb-6">
             Матч ещё не начался
           </p>
-          <RouterLink
-            to="/tickets"
-            class="inline-flex items-center gap-2 px-8 py-3.5 bg-ska-red hover:bg-red-700
-                   text-ska-white font-bold text-sm uppercase tracking-wider
-                   rounded-md transition-all hover:scale-105 shadow-lg shadow-ska-red/30"
-          >
+          <RouterLink to="/tickets" class="inline-flex items-center gap-2 px-8 py-3.5 bg-ska-red hover:bg-red-700 text-ska-white font-bold text-sm uppercase tracking-wider rounded-md transition-all hover:scale-105 shadow-lg shadow-ska-red/30">
             Купить билет
           </RouterLink>
         </div>
 
         <!-- Кнопка назад -->
         <div class="mt-12">
-          <RouterLink
-            to="/matches"
-            class="inline-flex items-center gap-2 px-6 py-3
-                   border border-ska-blue/50 hover:border-ska-silver
-                   text-ska-silver hover:text-ska-white
-                   text-sm font-semibold uppercase tracking-wider
-                   rounded-md transition-colors"
-          >
+          <RouterLink to="/matches" class="inline-flex items-center gap-2 px-6 py-3 border border-ska-blue/50 hover:border-ska-silver text-ska-silver hover:text-ska-white text-sm font-semibold uppercase tracking-wider rounded-md transition-colors">
             ← Все матчи
           </RouterLink>
         </div>

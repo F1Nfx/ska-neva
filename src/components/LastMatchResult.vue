@@ -4,22 +4,49 @@ import { RouterLink } from 'vue-router'
 import TeamLogo from '@/components/TeamLogo.vue'
 
 const lastMatch = ref<any>(null)
+const ourScorers = ref<any[]>([])
+const oppScorers = ref<any[]>([])
 
 onMounted(async () => {
   try {
     const response = await fetch('http://localhost:3001/api/matches')
     const matches = await response.json()
-    
-    const finished = matches.filter((m: any) => m.status === 'finished')
+
+    // Ищем последний завершенный матч
+    const finished = matches
+      .filter((m: any) => m.status === 'finished')
+      .sort((a: any, b: any) => b.tour - a.tour)
+
     if (finished.length > 0) {
       const m = finished[0]
       const isHome = m.homeTeam.isOurTeam
-      
+
+      // Определяем, кто хозяева, а кто гости
+      const home = isHome ? { ...m.homeTeam, isOurTeam: true } : m.homeTeam
+      const away = !isHome ? { ...m.awayTeam, isOurTeam: true } : m.awayTeam
+
       lastMatch.value = {
-        id: m.id, tournament: m.tournament, tour: m.tour, date: m.dateStr, stadium: m.stadium, isHome,
-        opponent: isHome ? m.awayTeam : m.homeTeam,
-        scoreUs: isHome ? m.homeScore : m.awayScore,
-        scoreThem: isHome ? m.awayScore : m.homeScore,
+        id: m.id,
+        tournament: m.tournament,
+        tour: m.tour,
+        date: m.dateStr,
+        stadium: m.stadium,
+        homeTeam: home,
+        awayTeam: away,
+        scoreHome: m.homeScore,
+        scoreAway: m.awayScore,
+      }
+
+      // Сортируем события по командам
+      if (m.events && m.events.length > 0) {
+        const goals = m.events.filter((e: any) => e.type === 'goal')
+        
+        // Находим ID нашей команды и ID соперника именно в этом матче
+        const ourTeamId = home.isOurTeam ? m.homeTeamId : m.awayTeamId
+        const oppTeamId = home.isOurTeam ? m.awayTeamId : m.homeTeamId
+
+        ourScorers.value = goals.filter((e: any) => e.teamId === ourTeamId)
+        oppScorers.value = goals.filter((e: any) => e.teamId === oppTeamId)
       }
     }
   } catch (error) {
@@ -27,11 +54,8 @@ onMounted(async () => {
   }
 })
 
-const homeTeam = computed(() => lastMatch.value ? (lastMatch.value.isHome ? { name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true, city: 'Санкт-Петербург' } : lastMatch.value.opponent) : null)
-const awayTeam = computed(() => lastMatch.value ? (!lastMatch.value.isHome ? { name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true, city: 'Санкт-Петербург' } : lastMatch.value.opponent) : null)
-
-const homeScorers = [{ minute: 34, player: 'Иванов' }, { minute: 78, player: 'Петров' }]
-const awayScorers = [{ minute: 58, player: 'Кузнецов' }]
+const homeTeam = computed(() => lastMatch.value ? lastMatch.value.homeTeam : null)
+const awayTeam = computed(() => lastMatch.value ? lastMatch.value.awayTeam : null)
 </script>
 
 <template>
@@ -53,6 +77,7 @@ const awayScorers = [{ minute: 58, player: 'Кузнецов' }]
 
       <RouterLink :to="`/matches/${lastMatch.id}`" class="block group">
         <div class="bg-gradient-to-br from-ska-navy to-[#0F2444] border border-ska-blue/40 rounded-2xl p-8 lg:p-12 transition-colors group-hover:border-ska-red/50">
+          
           <div class="grid grid-cols-3 items-center gap-4 lg:gap-8 mb-10">
             <!-- Хозяева -->
             <div class="flex flex-col items-center text-center">
@@ -64,9 +89,9 @@ const awayScorers = [{ minute: 58, player: 'Кузнецов' }]
             <!-- Центр -->
             <div class="flex flex-col items-center">
               <div class="flex items-center gap-4 lg:gap-6">
-                <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ lastMatch.scoreUs }}</span>
+                <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ lastMatch.scoreHome }}</span>
                 <span class="text-ska-silver/40 text-3xl lg:text-5xl font-thin">:</span>
-                <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ lastMatch.scoreThem }}</span>
+                <span class="text-ska-white text-5xl lg:text-7xl font-black tabular-nums">{{ lastMatch.scoreAway }}</span>
               </div>
               <span class="mt-4 px-3 py-1 bg-ska-silver/10 border border-ska-silver/30 rounded-full text-ska-silver/80 text-[10px] uppercase tracking-widest">
                 Матч окончен
@@ -84,23 +109,36 @@ const awayScorers = [{ minute: 58, player: 'Кузнецов' }]
           <!-- Голы -->
           <div class="border-t border-ska-blue/30 pt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
             <div>
-              <p class="text-ska-silver/50 text-xs uppercase tracking-widest mb-2">⚽ Голы СКА-Нева</p>
+              <p class="text-ska-silver/50 text-xs uppercase tracking-widest mb-2">
+                ⚽ Голы СКА-Нева
+              </p>
               <p class="text-ska-white">
-                <template v-for="(s, i) in homeScorers" :key="i">
-                  {{ s.player }} <span class="text-ska-red font-semibold">{{ s.minute }}'</span><span v-if="i < homeScorers.length - 1">, </span>
+                <template v-if="ourScorers.length > 0">
+                  <template v-for="(s, i) in ourScorers" :key="i">
+                    {{ s.playerName }} <span class="text-ska-red font-semibold">{{ s.minute }}'</span><span v-if="i < ourScorers.length - 1">, </span>
+                  </template>
                 </template>
+                <span v-else class="text-ska-silver/40">Голов нет</span>
               </p>
             </div>
             <div class="sm:text-right">
-              <p class="text-ska-silver/50 text-xs uppercase tracking-widest mb-2">⚽ Голы соперника</p>
+              <p class="text-ska-silver/50 text-xs uppercase tracking-widest mb-2">
+                ⚽ Голы соперника
+              </p>
               <p class="text-ska-white">
-                <template v-for="(s, i) in awayScorers" :key="i">
-                  {{ s.player }} <span class="text-ska-silver font-semibold">{{ s.minute }}'</span><span v-if="i < awayScorers.length - 1">, </span>
+                <template v-if="oppScorers.length > 0">
+                  <template v-for="(s, i) in oppScorers" :key="i">
+                    {{ s.playerName }} <span class="text-ska-silver font-semibold">{{ s.minute }}'</span><span v-if="i < oppScorers.length - 1">, </span>
+                  </template>
                 </template>
+                <span v-else class="text-ska-silver/40">Голов нет</span>
               </p>
             </div>
           </div>
-          <p class="text-center text-ska-silver/60 text-xs mt-6 pt-6 border-t border-ska-blue/20">🏟 {{ lastMatch.stadium }}</p>
+
+          <p class="text-center text-ska-silver/60 text-xs mt-6 pt-6 border-t border-ska-blue/20">
+            🏟 {{ lastMatch.stadium }}
+          </p>
         </div>
       </RouterLink>
     </div>

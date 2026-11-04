@@ -4,13 +4,15 @@ import { RouterLink } from 'vue-router'
 import TeamLogo from '@/components/TeamLogo.vue'
 import { staff } from '@/data/staff'
 
-// Теперь игроки хранятся в реактивной переменной
 const players = ref<any[]>([])
 const loading = ref(true)
 
+// Храним ID загруженных фото (и игроков, и тренеров)
+const loadedImages = ref<Record<number, boolean>>({})
+const loadedStaffImages = ref<Record<number, boolean>>({})
+
 onMounted(async () => {
   try {
-    // ВАЖНО: порт 3001!
     const response = await fetch('http://localhost:3001/api/players')
     players.value = await response.json()
   } catch (error) {
@@ -20,7 +22,6 @@ onMounted(async () => {
   }
 })
 
-// Делаем фильтры через computed, так как данные приходят асинхронно
 const goalkeepers = computed(() => players.value.filter((p) => p.position === 'Вратарь'))
 const defenders = computed(() => players.value.filter((p) => p.position === 'Защитник'))
 const midfielders = computed(() => players.value.filter((p) => p.position === 'Полузащитник'))
@@ -32,7 +33,16 @@ const groups = computed(() => [
   { title: 'Полузащитники', players: midfielders.value },
   { title: 'Нападающие', players: forwards.value },
 ])
+
+function handleImageLoad(id: number) {
+  loadedImages.value[id] = true
+}
+
+function handleStaffImageLoad(id: number) {
+  loadedStaffImages.value[id] = true
+}
 </script>
+
 <template>
   <div class="bg-ska-navy min-h-screen">
     <section class="max-w-7xl mx-auto px-6 py-12">
@@ -70,7 +80,19 @@ const groups = computed(() => [
               <div class="absolute inset-0 opacity-[0.07]"
                    style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 18px 18px;"></div>
 
+              <!-- Фото тренера (меняем .jpg на .png) -->
+              <img
+                :src="`/staff/${person.id}-portrait.png`"
+                :alt="person.name"
+                class="absolute inset-0 w-full h-full object-cover object-top z-10
+                       group-hover:scale-105 transition-transform duration-500"
+                @load="handleStaffImageLoad(person.id)"
+                @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+              />
+
+              <!-- Силуэт тренера (показывается только если фото нет) -->
               <svg
+                v-if="!loadedStaffImages[person.id]"
                 viewBox="0 0 200 320"
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[85%] h-[85%]
                        text-ska-silver/15 group-hover:text-ska-silver/25
@@ -87,7 +109,8 @@ const groups = computed(() => [
                       class="text-ska-red/40" fill="currentColor" />
               </svg>
 
-              <div class="absolute bottom-0 left-0 right-0 h-24
+              <!-- Затемнение снизу -->
+              <div class="absolute bottom-0 left-0 right-0 h-24 z-10
                           bg-gradient-to-t from-[#0A1425] to-transparent"></div>
             </div>
 
@@ -134,7 +157,19 @@ const groups = computed(() => [
               <div class="absolute inset-0 opacity-[0.07]"
                    style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 18px 18px;"></div>
 
+              <!-- ФОТО ИГРОКА (Если оно есть в папке public/players) -->
+              <img
+                :src="`/players/${player.id}-portrait.png`"
+                :alt="player.name"
+                class="absolute inset-0 w-full h-full object-cover object-top z-10
+                       group-hover:scale-105 transition-transform duration-500"
+                @load="handleImageLoad(player.id)"
+                @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+              />
+
+              <!-- СИЛУЭТ (Показывается, ТОЛЬКО если фото не загрузилось) -->
               <svg
+                v-if="!loadedImages[player.id]"
                 viewBox="0 0 200 320"
                 class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[85%] h-[85%]
                        text-ska-silver/15 group-hover:text-ska-silver/25
@@ -148,20 +183,22 @@ const groups = computed(() => [
                 <path d="M 80 130 Q 100 145 120 130 L 125 138 Q 100 158 75 138 Z"
                       class="text-ska-red/40" fill="currentColor" />
               </svg>
-
+              <!-- Капитанская нашивка -->
               <div
                 v-if="player.isCaptain"
-                class="absolute top-3 left-3 px-2 py-0.5 rounded
+                class="absolute top-3 left-3 px-2 py-0.5 rounded z-20
                        bg-ska-red text-ska-white text-[10px] font-black uppercase tracking-wider
                        shadow-lg shadow-ska-red/40"
               >
                 Капитан
               </div>
 
-              <div class="absolute bottom-0 left-0 right-0 h-24
+              <!-- Затемнение снизу -->
+              <div class="absolute bottom-0 left-0 right-0 h-24 z-10
                           bg-gradient-to-t from-[#0A1425] to-transparent"></div>
             </div>
 
+            <!-- Инфо-блок -->
             <div class="relative px-4 py-4 border-t border-ska-blue/30">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-ska-red font-black text-lg tabular-nums">

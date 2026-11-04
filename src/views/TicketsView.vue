@@ -29,7 +29,8 @@ onMounted(async () => {
       opponent: {
         name: m.awayTeam.name,
         short: m.awayTeam.shortName,
-        color: m.awayTeam.color
+        color: m.awayTeam.color,
+        logoUrl: m.awayTeam.logoUrl // <--- ДОБАВИТЬ ВОТ ЭТО
       }
     }))
     
@@ -169,8 +170,9 @@ function selectVip() {
                     <span class="text-ska-silver/40 text-xs font-black">VS</span>
                     <!-- Логотип соперника -->
                     <TeamLogo
-                      :team="{ name: match.opponent.name, short: match.opponent.short, color: match.opponent.color }"
+                      :team="{ name: match.opponent.name, short: match.opponent.short, color: match.opponent.color, logoUrl: match.opponent.logoUrl }"
                       size="sm"
+                    />
                     />
                     <div class="min-w-0 ml-1">
                       <p class="text-ska-white text-sm font-semibold truncate">

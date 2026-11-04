@@ -16,6 +16,7 @@ type Team = {
   goalsAgainst: number
   points: number
   isOurTeam?: boolean
+  logoUrl?: string | null
 }
 
 const teams = ref<Team[]>([])
@@ -32,6 +33,7 @@ onMounted(async () => {
       city: s.team.city,
       short: s.team.shortName,
       color: s.team.color,
+      logoUrl: s.team.logoUrl,     // <--- ДОБАВИТЬ СЮДА
       isOurTeam: s.team.isOurTeam,
       played: s.played,
       wins: s.wins,
@@ -112,10 +114,10 @@ onMounted(async () => {
 
         <!-- Команда -->
         <div class="flex items-center gap-3 min-w-0">
-          <TeamLogo
-            :team="{ name: team.name, short: team.short, color: team.color, isOurTeam: team.isOurTeam }"
-            size="sm"
-          />
+        <TeamLogo
+          :team="{ name: team.name, short: team.short, color: team.color, isOurTeam: team.isOurTeam, logoUrl: team.logoUrl }"
+          size="sm"
+        />
           <div class="min-w-0">
             <p class="text-sm lg:text-base font-semibold truncate" :class="team.isOurTeam ? 'text-ska-white' : 'text-ska-white/90'">
               {{ team.name }}

@@ -6,7 +6,6 @@ import LeagueTable from '@/components/LeagueTable.vue'
 import NewsPreview from '@/components/NewsPreview.vue'
 import TeamLogo from '@/components/TeamLogo.vue'
 
-// Данные матча
 const nextMatch = ref<any>(null)
 const matchDate = ref<Date>(new Date())
 const now = ref<Date>(new Date())
@@ -22,34 +21,49 @@ onMounted(async () => {
   try {
     const response = await fetch('http://localhost:3001/api/matches')
     const matches = await response.json()
-    
-    // Ищем ближайший предстоящий матч
-    const upcoming = matches.filter((m: any) => m.status === 'upcoming')
-    
-    if (upcoming.length > 0) {
-      // Бэкенд отдает их по убыванию ID, поэтому берем последний в списке
-      const m = upcoming[upcoming.length - 1]
+
+    // 1. Ищем матч, который админ отметил звездочкой в админке
+    let featuredMatch = matches.find((m: any) => m.isFeatured === true)
+
+    // 2. Если админ не выбрал главный матч, берем просто первый предстоящий
+    if (!featuredMatch) {
+      const upcoming = matches
+        .filter((m: any) => m.status === 'upcoming')
+        .sort((a: any, b: any) => a.tour - b.tour)
+      featuredMatch = upcoming[0]
+    }
+
+    // 3. Если нашли матч, выводим его на главную
+    if (featuredMatch) {
+      const m = featuredMatch
       const isHome = m.homeTeam.isOurTeam
-      
+      const opponentData = isHome ? m.awayTeam : m.homeTeam
+
       nextMatch.value = {
         ...m,
         isHome,
-        opponent: isHome ? m.awayTeam : m.homeTeam,
+        opponent: {
+          name: opponentData.name,
+          city: opponentData.city,
+          color: opponentData.color,
+          short: opponentData.shortName,
+          logoUrl: opponentData.logoUrl,
+        },
       }
 
-      // Правильно парсим русскую дату для таймера
+      // Парсим русскую дату для таймера
       const months: Record<string, number> = {
         'января': 0, 'февраля': 1, 'марта': 2, 'апреля': 3, 'мая': 4, 'июня': 5,
         'июля': 6, 'августа': 7, 'сентября': 8, 'октября': 9, 'ноября': 10, 'декабря': 11
       }
       const [day, monthStr, year] = m.dateStr.split(' ')
       const [hours, minutes] = m.time.split(':')
-      
+
       matchDate.value = new Date(
-        Number(year), 
-        months[monthStr] || 0, 
-        Number(day), 
-        Number(hours), 
+        Number(year),
+        months[monthStr] || 0,
+        Number(day),
+        Number(hours),
         Number(minutes)
       )
     }
@@ -62,7 +76,6 @@ onUnmounted(() => {
   if (intervalId) clearInterval(intervalId)
 })
 
-// Таймер
 const timeLeft = computed(() => {
   const diff = matchDate.value.getTime() - now.value.getTime()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
@@ -103,13 +116,13 @@ function pad(num: number): string {
         <!-- Матч: команда — VS — команда -->
         <div class="grid grid-cols-3 items-center gap-4 lg:gap-12 mb-12">
 
-          <!-- Домашняя команда (Наша) -->
+          <!-- Домашняя команда -->
           <div class="flex flex-col items-center text-center">
             <TeamLogo
               :team="{ name: 'СКА-Нева', short: 'СКА', color: 'from-ska-red to-ska-blue', isOurTeam: true }"
               size="xl"
             />
-            <div class="h-4"></div>
+            <div class="h-4"></div> <!-- Это отступ вместо mb-4, так как у TeamLogo его нет -->
             <h2 class="text-ska-white text-lg lg:text-2xl font-bold tracking-wide">
               СКА-НЕВА
             </h2>

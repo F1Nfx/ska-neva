@@ -23,6 +23,8 @@ const router = createRouter({
       meta: { title: 'Билеты' } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue'),
       meta: { title: 'Страница не найдена' } },
+    { path: '/admin/login', name: 'admin-login', component: () => import('../views/AdminLoginView.vue') },
+    { path: '/admin', name: 'admin', component: () => import('../views/AdminDashboardView.vue') },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
@@ -38,6 +40,19 @@ router.afterEach((to) => {
     document.title = `${pageTitle} · ${BASE_TITLE}`
   } else {
     document.title = `${BASE_TITLE} — официальный сайт`
+  }
+  
+})
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('admin_token')
+  if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
+    if (!token) {
+      next('/admin/login')
+    } else {
+      next()
+    }
+  } else {
+    next()
   }
 })
 
