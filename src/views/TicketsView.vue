@@ -14,7 +14,7 @@ const selectedMatch = computed(() => homeMatches.value.find((m) => m.id === sele
 // Загружаем матчи из БД
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/matches')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/matches')
     const data = await response.json()
     
     // Фильтруем: только предстоящие и только домашние (где isOurTeam === true)

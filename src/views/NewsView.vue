@@ -11,7 +11,7 @@ const tags = ['Все', 'Матч', 'Трансфер', 'Интервью', 'К�
 // Загружаем новости из базы
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/news')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/news')
     news.value = await response.json()
   } catch (error) {
     console.error('Ошибка загрузки новостей:', error)

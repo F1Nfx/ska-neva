@@ -13,7 +13,7 @@ const loadedStaffImages = ref<Record<number, boolean>>({})
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/players')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/players')
     players.value = await response.json()
   } catch (error) {
     console.error('Ошибка загрузки игроков:', error)

@@ -25,7 +25,7 @@ onMounted(async () => {
     }
 
     // Загружаем похожие новости
-    const allRes = await fetch('http://localhost:3001/api/news')
+    const allRes = await fetch(import.meta.env.VITE_API_URL + '/api/news')
     const allNews = await allRes.json()
     related.value = allNews.filter((n: any) => n.id !== Number(route.params.id)).slice(0, 3)
     

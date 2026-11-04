@@ -19,7 +19,7 @@ onMounted(async () => {
 
   // Загружаем матчи
   try {
-    const response = await fetch('http://localhost:3001/api/matches')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/matches')
     const matches = await response.json()
 
     // 1. Ищем матч, который админ отметил звездочкой в админке

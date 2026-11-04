@@ -23,7 +23,7 @@ const teams = ref<Team[]>([])
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/standings')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/standings')
     const data = await response.json()
     
     // Преобразуем данные из БД под наш шаблон

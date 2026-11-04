@@ -9,7 +9,7 @@ const oppScorers = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/matches')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/matches')
     const matches = await response.json()
 
     // Ищем последний завершенный матч

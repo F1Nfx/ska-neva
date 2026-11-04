@@ -27,7 +27,7 @@ const loading = ref(true)
 // Загружаем матчи из БД
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/matches')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/matches')
     const rawMatches = await response.json()
     
     // ID нашей команды в БД (СКА-Нева)

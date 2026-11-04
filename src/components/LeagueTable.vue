@@ -7,7 +7,7 @@ const teams = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/standings')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/standings')
     const data = await response.json()
     teams.value = data.slice(0, 8).map((s: any) => ({
       position: s.position, 

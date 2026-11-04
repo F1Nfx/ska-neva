@@ -22,7 +22,7 @@ const form = ref({
 })
 
 async function fetchNews() {
-  const res = await fetch('http://localhost:3001/api/news')
+  const res = await fetch(import.meta.env.VITE_API_URL + '/api/news')
   newsList.value = await res.json()
 }
 
@@ -32,7 +32,7 @@ async function submitNews() {
   const contentArray = form.value.content.split('\n').filter(p => p.trim() !== '')
 
   try {
-    const response = await fetch('http://localhost:3001/api/news', {
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/news', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ ...form.value, content: contentArray })
@@ -80,7 +80,7 @@ const eventForm = ref({
 })
 
 async function fetchMatches() {
-  const res = await fetch('http://localhost:3001/api/matches')
+  const res = await fetch(import.meta.env.VITE_API_URL + '/api/matches')
   matchesList.value = await res.json()
 }
 
@@ -151,14 +151,14 @@ const playerForm = ref({
 })
 
 async function fetchPlayers() {
-  const res = await fetch('http://localhost:3001/api/players')
+  const res = await fetch(import.meta.env.VITE_API_URL + '/api/players')
   playersList.value = await res.json()
 }
 
 async function submitPlayer() {
   if (!playerForm.value.name || !playerForm.value.number) return alert('Заполните имя и номер')
   try {
-    const response = await fetch('http://localhost:3001/api/players', {
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/players', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(playerForm.value)
@@ -193,7 +193,7 @@ async function deletePlayer(id: number) {
 const standingsList = ref<any[]>([])
 
 async function fetchStandings() {
-  const res = await fetch('http://localhost:3001/api/standings')
+  const res = await fetch(import.meta.env.VITE_API_URL + '/api/standings')
   standingsList.value = await res.json()
 }
 

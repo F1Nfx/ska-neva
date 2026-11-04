@@ -12,7 +12,7 @@ const tagColors: Record<string, string> = {
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/news')
+    const response = await fetch(import.meta.env.VITE_API_URL + '/api/news')
     const data = await response.json()
     news.value = data.slice(0, 3)
   } catch (error) {
