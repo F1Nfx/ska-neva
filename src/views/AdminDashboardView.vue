@@ -56,7 +56,7 @@ async function deleteNews(id: number) {
   if (!confirm('Вы уверены, что хотите удалить эту новость?')) return
   
   try {
-    const response = await fetch(`http://localhost:3001/api/news/${id}`, {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/news/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -86,7 +86,7 @@ async function fetchMatches() {
 
 async function updateScore(match: any) {
   try {
-    const response = await fetch(`http://localhost:3001/api/matches/${match.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${match.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ homeScore: match.homeScore, awayScore: match.awayScore })
@@ -109,7 +109,7 @@ async function addEvent(match: any) {
   const teamId = eventForm.value.isOurTeam ? ourTeamId : oppTeamId
 
   try {
-    const response = await fetch(`http://localhost:3001/api/matches/${match.id}/events`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${match.id}/events`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({
@@ -130,7 +130,7 @@ async function addEvent(match: any) {
 
 async function setFeaturedMatch(id: number) {
   try {
-    await fetch(`http://localhost:3001/api/matches/${id}/feature`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${id}/feature`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -179,7 +179,7 @@ async function submitPlayer() {
 async function deletePlayer(id: number) {
   if (!confirm('Вы уверены, что хотите удалить игрока?')) return
   try {
-    await fetch(`http://localhost:3001/api/players/${id}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/players/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     })
@@ -199,7 +199,7 @@ async function fetchStandings() {
 
 async function updateStanding(standing: any) {
   try {
-    const response = await fetch(`http://localhost:3001/api/standings/${standing.id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/standings/${standing.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({

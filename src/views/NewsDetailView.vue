@@ -16,7 +16,7 @@ const tagColors: Record<string, string> = {
 onMounted(async () => {
   try {
     // Загружаем саму новость
-    const response = await fetch(`http://localhost:3001/api/news/${route.params.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/news/${route.params.id}`)
     if (!response.ok) throw new Error('Новость не найдена')
     item.value = await response.json()
     

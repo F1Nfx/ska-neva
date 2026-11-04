@@ -9,7 +9,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await fetch(`http://localhost:3001/api/players/${route.params.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/players/${route.params.id}`)
     if (!response.ok) throw new Error('Игрок не найден')
     player.value = await response.json()
     

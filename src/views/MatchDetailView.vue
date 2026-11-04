@@ -9,7 +9,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await fetch(`http://localhost:3001/api/matches/${route.params.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/matches/${route.params.id}`)
     if (!response.ok) throw new Error('Матч не найден')
     matchData.value = await response.json()
   } catch (error) {
